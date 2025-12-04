@@ -1,0 +1,6 @@
+.axes-legend{position:fixed;right:12px;bottom:12px;z-index:2200;background:rgba(20,20,26,0.86);border:1px solid #2b2b33;border-radius:8px;padding:8px 10px;color:#e6e6e6;font-size:12px;line-height:18px;backdrop-filter: blur(6px);}
+.axes-legend .row{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.axes-legend .row .x,.axes-legend .row .y,.axes-legend .row .z{display:inline-block;width:14px;height:2px;border-radius:1px}
+.axes-legend .row .x{background:#ff5555}
+.axes-legend .row .y{background:#55dd55}
+.axes-legend .row .z{background:#5588ff}

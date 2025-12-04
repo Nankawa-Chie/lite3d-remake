@@ -145,6 +145,20 @@ body {
 	background-color: gray;
 }
 
+/* AI thinking indicator */
+.ai-thinking {
+	margin-left: 6px;
+	font-size: 12px;
+	color: #ffeb3b;
+	animation: ai-pulse 1s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+	0% { opacity: 0.4; }
+	50% { opacity: 1; }
+	100% { opacity: 0.4; }
+}
+
 .turn {
 	border: solid 2px #d22;
 	color: #d22;

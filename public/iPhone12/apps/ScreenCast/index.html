@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>屏幕投屏</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="screencast-app-container">
+      <!-- 头部 -->
+      <div class="app-header">
+        <h1>📺 屏幕投屏</h1>
+        <p>将任何屏幕内容投屏到3D电视</p>
+      </div>
+
+      <!-- 投屏选项 -->
+      <div class="cast-options">
+        <div class="cast-option" id="screenCast">
+          <div class="option-icon">🖥️</div>
+          <h3>屏幕投屏</h3>
+          <p>分享整个屏幕或应用窗口</p>
+          <button class="cast-btn">开始投屏</button>
+        </div>
+
+        <div class="cast-option" id="tabCast">
+          <div class="option-icon">🌐</div>
+          <h3>标签页投屏</h3>
+          <p>分享浏览器标签页内容</p>
+          <button class="cast-btn">开始投屏</button>
+        </div>
+
+        <div class="cast-option" id="cameraCast">
+          <div class="option-icon">📹</div>
+          <h3>摄像头投屏</h3>
+          <p>分享摄像头画面</p>
+          <button class="cast-btn">开始投屏</button>
+        </div>
+      </div>
+
+      <!-- 投屏状态 -->
+      <div class="cast-status" id="castStatus" style="display: none">
+        <div class="status-header">
+          <h3>🔴 正在投屏</h3>
+          <button id="stopCast" class="stop-btn">停止投屏</button>
+        </div>
+        <div class="status-info">
+          <p id="statusText">投屏状态信息</p>
+          <div class="status-preview" id="statusPreview">
+            <video id="previewVideo" muted autoplay></video>
+          </div>
+        </div>
+      </div>
+
+      <!-- 投屏历史 -->
+      <div class="cast-history">
+        <h3>📋 投屏记录</h3>
+        <div class="history-list" id="historyList">
+          <div class="history-item">
+            <span class="history-time">刚刚</span>
+            <span class="history-desc">等待首次投屏...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 设置面板 -->
+      <div class="settings-panel">
+        <h3>⚙️ 投屏设置</h3>
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="includeAudio" checked>
+            包含音频
+          </label>
+        </div>
+        <div class="setting-item">
+          <label>
+            视频质量:
+            <select id="videoQuality">
+              <option value="720p">720p (推荐)</option>
+              <option value="1080p">1080p (高质量)</option>
+              <option value="480p">480p (流畅)</option>
+            </select>
+          </label>
+        </div>
+        <div class="setting-item">
+          <label>
+            帧率:
+            <select id="frameRate">
+              <option value="30">30 FPS (推荐)</option>
+              <option value="60">60 FPS (高帧率)</option>
+              <option value="15">15 FPS (省电)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- 帮助信息 -->
+      <div class="help-section">
+        <h3>❓ 使用帮助</h3>
+        <div class="help-content">
+          <p><strong>屏幕投屏：</strong>可以分享整个屏幕或特定应用窗口</p>
+          <p><strong>标签页投屏：</strong>只分享当前浏览器标签页内容</p>
+          <p><strong>摄像头投屏：</strong>分享摄像头实时画面</p>
+          <p><strong>提示：</strong>投屏内容会实时显示在3D场景的电视屏幕上</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

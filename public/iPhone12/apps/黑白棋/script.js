@@ -523,66 +523,66 @@ const clickMinMax = function (elements) {
 };
 
 // -----------------------------------------------------------------------------------老手AI //
+// 使用 Web Worker 进行 3000ms 内的搜索，返回应点击的 DOM 元素
+let mctsWorker = null;
+let mctsReqId = 0;
+function ensureMctsWorker() {
+	if (!mctsWorker) {
+		try {
+			mctsWorker = new Worker('./mctsWorker.js');
+		} catch (e) {
+			console.error('无法创建MCTS Worker:', e);
+			mctsWorker = null;
+		}
+	}
+	return mctsWorker;
+}
+
 const clickMCT = async function (elements) {
+	// 仅有一个就直接走
+	if (elements.length === 1) return elements[0];
+
+	const aiHint = document.getElementById('ai-thinking');
+	if (aiHint) aiHint.style.display = 'inline-block';
 	const board = getBoardState();
-	const searchCount = 500;
-	const timeLimit = 10000;
-	let maxScore = -Infinity;
-	let bestCell;
-	let searchDepth = 3;
-	let startTime = Date.now();
-	// **如果只有一个可落子位置，就直接返回它**
-	if (elements.length === 1) {
-		return elements[0];
+	const worker = ensureMctsWorker();
+
+	// 如果 Worker 不可用，退化为贪心
+	if (!worker) {
+		if (aiHint) aiHint.style.display = 'none';
+		return clickGreedy(elements) || elements[0];
 	}
-	// 循环增加搜索深度，直到超出时间上限
-	while (true) {
-		// 遍历所有可落子位置
-		for (let i = 0; i < elements.length; i++) {
-			const cell = elements[i];
-			const splitedId = cell.id.split("-");
-			const row = parseInt(splitedId[1]);
-			const col = parseInt(splitedId[2]);
-			let score = 0;
-			// 创建一个数组存储所有模拟游戏的Promise对象
-			let promises = [];
-			// 模拟多次游戏
-			for (let j = 0; j < searchCount; j++) {
-				// 复制棋盘状态
-				const tempBoard = JSON.parse(JSON.stringify(board));
-				// 落子
-				putStone(tempBoard, row, col, isBlackTurn);
-				console.log("搜索次数");
-				// 使用async/await来搜索并累加得分，并将Promise对象放入数组中
-				promises.push(
-					(async () => {
-						score += await MCT(tempBoard, !isBlackTurn, searchDepth);
-					})()
-				);
+
+	return new Promise((resolve) => {
+		let resolved = false;
+		const cleanup = () => {
+			if (aiHint) aiHint.style.display = 'none';
+		};
+
+		worker.onmessage = function (e) {
+			const { row, col, reqId: respId } = e.data || {};
+			if (respId !== currentReqId) return; // ignore stale responses
+			cleanup();
+			if (resolved) return;
+			resolved = true;
+			if (typeof row === 'number' && typeof col === 'number' && row >= 0 && col >= 0) {
+				const el = document.getElementById(`cell-${row}-${col}`);
+				resolve(el || clickGreedy(elements) || elements[0]);
+			} else {
+				resolve(clickGreedy(elements) || elements[0]);
 			}
-			// 等待所有Promise对象都完成后再继续执行
-			await Promise.all(promises);
-			// 计算平均得分
-			score /= searchCount;
-			// 更新最大得分和最佳落子位置
-			if (score > maxScore) {
-				maxScore = score;
-				bestCell = cell;
-				console.log("当前总分数为：" + score);
-			}
-		}
-		// 记录结束时间
-		let endTime = Date.now();
-		// 如果超过时间上限，就停止搜索并返回最佳落子位置
-		if (endTime - startTime > timeLimit) {
-			console.log("当前搜索时间为：" + (endTime - startTime));
-			break;
-		}
-		// 否则，增加搜索深度并继续循环
-		searchDepth++;
-		console.log("当前搜索深度为：" + searchDepth);
-	}
-	return bestCell;
+		};
+		worker.onerror = function () {
+			cleanup();
+			if (resolved) return;
+			resolved = true;
+			resolve(clickGreedy(elements) || elements[0]);
+		};
+
+		// 发送搜索请求
+		const currentReqId = ++mctsReqId;
+		worker.postMessage({ type: 'search', board, isBlackTurn, timeLimit: 3000, reqId: currentReqId });
+	});
 };
 
 // 蒙特卡洛树搜索算法

@@ -1,42 +1,212 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  font-family: "Arial", sans-serif;
+  background: #000;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height: 100%;
+  width: 100%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #111;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.main-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.main-view-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2; /* Higher than canvas */
+  pointer-events: auto;
+}
+
+/* 小地图整体包装器 */
+.minimap-wrapper {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 3; /* On top of main view */
+  pointer-events: none; /* Let clicks pass through to the main view */
+}
+
+.minimap-view-container {
+  /* width 和 height 现在通过 inline style 动态设置 */
+  position: relative; /* 确保子元素相对于此容器定位 */
+  border: 2px solid #888;
+  border-radius: 0px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.player-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background-color: #ff4444;
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px #ff4444;
+  z-index: 10; /* 确保在最上层 */
+}
+
+.north-marker {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 1px 1px 2px black;
+  z-index: 10; /* 确保在最上层 */
+}
+
+/* 调试中心线样式 */
+.debug-center-line-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #00ff00;
+  z-index: 5;
+  opacity: 0.8;
+}
+
+.debug-center-line-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #00ff00;
+  z-index: 5;
+  opacity: 0.8;
+}
+
+/* 坐标显示样式 */
+.minimap-coordinates {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #555;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.coordinate-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.coord-label {
+  color: #aaa;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coord-values {
+  color: #fff;
+  font-weight: normal;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Disable text selection for game UI */
+.app-container * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Cursor styles for game */
+canvas {
+  cursor: crosshair;
+}
+
+/* Loading screen styles */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Game UI styles */
+.game-ui {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.game-ui > * {
+  pointer-events: auto;
+}
+
+/* iPhone container animation */
+.phone-container {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.phone-container.hidden {
+  transform: translateX(100%);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .phone-container {
+    width: 250px !important;
+    height: 500px !important;
   }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* App.css */
+.base {
+  /* 这是 <Loader /> 创建的容器 */
+  display: none !important;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}

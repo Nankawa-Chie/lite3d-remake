@@ -1,32 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>视频App</title>
-		<link rel="stylesheet" href="styles.css" />
-	</head>
-	<body>
-		<div class="video-app-container">
-			<div class="video-list">
-				<!-- 以下是视频列表项的示例，您可以按照实际情况来添加或修改 -->
-				<div class="video-item" data-video-src="../../../video/Lilium.mp4">
-					<img class="video-thumbnail" src="./thumbnail/lilium.png" />
-					<h3 class="video-name">Elfen Lied OP - Lilium (Piano)</h3>
-				</div>
-				<div class="video-item" data-video-src="./videos/Realize.mp4">
-					<img class="video-thumbnail" src="./thumbnail/Realize.png" />
-					<h3 class="video-name">Realize</h3>
-				</div>
-				<!-- 更多视频... -->
-			</div>
-			<!-- Video player container -->
-			<div class="video-player" style="display: none">
-				<video id="videoElement" controls></video>
-				<button id="closeVideoPlayer" class="close-btn"><img src="./close.svg" /></button>
-				<button id="screenMirroring" class="screenmirror-btn"><img src="./Screen mirroring.svg" /></button>
-			</div>
-		</div>
-		<script src="script.js"></script>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>视频App</title>
+    <!-- 引入一个更现代的字体，例如 Google Fonts 的 'Poppins' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="video-app-container">
+      <header class="app-header">
+        <h1>南川 · 画廊</h1>
+        <p>南川故事烩 | 叙事短片集</p>
+      </header>
+
+      <div class="video-list">
+        <!-- 统一更新所有视频项结构 
+        <div class="video-item" data-video-src="./videos/Lilium.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/lilium.png" alt="Elfen Lied OP - Lilium (Piano)" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info">
+            <h3 class="video-name">Elfen Lied OP - Lilium (Piano)</h3>
+          </div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/Realize.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/Realize.png" alt="Realize" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">Realize</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/Boom_Remix.mov">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/000.png" alt="Boom_Remix" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">Boom_Remix</h3></div>
+        </div>
+        -->
+
+        <div class="video-item" data-video-src="../../../video/【歐美怪談】我的乾爹要我幫他一些怪忙，這些要求越來越詭異.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/001.png" alt="歐美怪談" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">我的乾爹要我幫他一些忙，這些要求越來越詭異...</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/Tropical Paradise.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/002.png" alt="Tropical Paradise" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">叔公留給我一座熱帶天堂，和一些「非常重要」的規則</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/不该存在的录像.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/003.png" alt="不该存在的录像" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">我哥哥的尘封的房间里，藏着一些我以前从未见过的東西...</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/尾生之信.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/004.png" alt="尾生之信" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">尾生之信</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/The only wound.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/005.png" alt="The only wound" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">飓风过后，一种深海生物被冲上岸…它把人体当做“移动巢穴”</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="../../../video/008.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/005.png" alt="我們一行五人，卻總能數出六個" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">我們一行五人，卻總能數出六個</h3></div>
+        </div>
+
+        <div class="video-item" data-video-src="/external_videos/012.mp4">
+          <div class="thumbnail-container">
+            <img class="video-thumbnail" src="./thumbnail/012.png" alt="一場持續了二十年的惡作劇" />
+            <div class="play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="video-info"><h3 class="video-name">一場持續了二十年的惡作劇</h3></div>
+        </div>
+
+        <!-- 更多视频... -->
+      </div>
+    </div>
+
+    <!-- 视频播放器 (初始时隐藏) -->
+    <div class="video-player" style="display: none">
+      <video id="videoElement" controls></video>
+      <button id="closeVideoPlayer" class="close-btn" title="关闭">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <button id="screenMirroring" class="screenmirror-btn" title="投屏">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path>
+          <polygon points="12 15 17 21 7 21 12 15"></polygon>
+        </svg>
+      </button>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>

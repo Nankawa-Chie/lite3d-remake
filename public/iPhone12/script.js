@@ -223,6 +223,18 @@ $(function () {
 				应用图标: "./apps/Open-LLM-VTuber/Open-LLM-VTuber.png",
 				type: "app",
 				动态: false,
+			},
+			{
+				应用名: "YouTube",
+				应用图标: "./apps/YouTube/youtube-icon.svg",
+				type: "app",
+				动态: false,
+			},
+			{
+				应用名: "屏幕投屏",
+				应用图标: "./apps/ScreenCast/screencast-icon.svg",
+				type: "app",
+				动态: false,
 			}
 		],
 		wrapperApps: {
@@ -1176,6 +1188,14 @@ ${app.通知es ? `<div class="通知">${app.通知es}</div>` : ""}
 
 	$("body").on("click", '.app[data-app="appOpen-LLM-VTuber"]', function () {
 		launchApp("OpenLLMVTuber", "Open-LLM-VTuber", "http://localhost:12393/", true);
+	});
+
+	$("body").on("click", '.app[data-app="appYouTube"]', function () {
+		launchApp("YouTube", "YouTube", "./apps/YouTube/index.html");
+	});
+
+	$("body").on("click", '.app[data-app="app屏幕投屏"]', function () {
+		launchApp("ScreenCast", "屏幕投屏", "./apps/ScreenCast/index.html");
 	});
 
 });

@@ -1,0 +1,91 @@
+.quaternion-ui {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2001;
+  color: #e6e6e6;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+}
+.quaternion-ui .panel {
+  background: rgba(20, 20, 26, 0.86);
+  border: 1px solid #2b2b33;
+  border-radius: 10px;
+  padding: 12px;
+  min-width: 260px;
+  width: 340px;
+  max-width: min(340px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.quaternion-ui .panel h3 {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+.quaternion-ui .panel h4 {
+  margin: 10px 0 6px 0;
+  font-weight: 600;
+}
+.quaternion-ui .divider {
+  height: 1px;
+  background: #2b2b33;
+  margin: 10px 0;
+}
+.quaternion-ui .row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+.quaternion-ui .row label {
+  width: 80px;
+  color: #9aa0a6;
+}
+.quaternion-ui .row input[type="range"] {
+  flex: 1;
+}
+.quaternion-ui .row span {
+  width: 60px;
+  text-align: right;
+  color: #cfd3da;
+}
+.quaternion-ui .collapse-btn {
+  position: absolute;
+  top: 8px;
+  right: -24px;
+  background: #1f2937;
+  color: #e6e6e6;
+  border: 1px solid #374151;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+.quaternion-ui .collapse-btn:hover {
+  background: #2b3544;
+}
+
+.quaternion-ui .row.mono {
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px;
+  border-radius: 6px;
+}
+.quaternion-ui .math {
+  font-size: 14px;
+  color: #cfd3da;
+  background: rgba(30, 30, 30, 0.35);
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+.quaternion-ui .note {
+  font-size: 12px;
+  color: #9aa0a6;
+  margin-top: 8px;
+}

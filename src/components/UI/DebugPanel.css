@@ -1,0 +1,444 @@
+/* Debug Panel Styles */
+.debug-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  font-family: "Courier New", monospace;
+  user-select: none;
+}
+
+.debug-toggle {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  color: #00ff00;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 10px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.debug-toggle:hover {
+  background: rgba(0, 255, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+  transform: scale(1.05);
+}
+
+.debug-content {
+  position: absolute;
+  top: 120px;
+  right: 28vh;
+  width: 1280px;
+  max-height: 80vh;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #00ff00;
+  border-radius: 12px;
+  padding: 0;
+  backdrop-filter: blur(5px);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #00ff00;
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.debug-header h3 {
+  margin: 0;
+  color: #00ff00;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #00ff00;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff4444;
+}
+
+.debug-section {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.debug-section:last-child {
+  border-bottom: none;
+}
+
+.debug-section h4 {
+  margin: 0 0 15px 0;
+  color: #00ff00;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Weather Controls */
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.weather-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.weather-btn:hover {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+  transform: translateY(-2px);
+}
+
+.weather-btn.active {
+  background: rgba(0, 255, 0, 0.3);
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.weather-icon {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.weather-label {
+  text-transform: capitalize;
+  font-size: 11px;
+}
+
+/* Advanced Settings */
+.advanced-toggle {
+  margin-bottom: 10px;
+}
+
+.toggle-btn {
+  background: none;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 4px;
+  color: #00ff00;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 5px 10px;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.advanced-settings {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.setting-row:last-child {
+  margin-bottom: 0;
+}
+
+.setting-row label {
+  color: #cccccc;
+  font-size: 12px;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.setting-row input[type="range"] {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.setting-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #00ff00;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.setting-row input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #00ff00;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.setting-row span {
+  color: #00ff00;
+  font-size: 12px;
+  min-width: 40px;
+  text-align: right;
+}
+
+.setting-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #00ff00;
+  cursor: pointer;
+}
+
+/* Time Controls */
+.time-display {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.current-time {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00ff00;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  font-family: "Courier New", monospace;
+}
+
+.time-speed-controls {
+  margin-top: 15px;
+}
+
+.time-speed-controls label {
+  display: block;
+  color: #cccccc;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.speed-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.speed-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 8px 4px;
+  transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+}
+
+.speed-btn.active {
+  background: rgba(0, 255, 0, 0.3);
+  border-color: #00ff00;
+  color: #000000;
+  font-weight: bold;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.quick-actions button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+.quick-actions button:hover {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+  transform: translateY(-1px);
+}
+
+/* Scrollbar Styling */
+.debug-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.debug-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.debug-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 0, 0.5);
+  border-radius: 3px;
+}
+
+.debug-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 0, 0.7);
+}
+
+/* Animation for panel opening */
+.debug-panel.open .debug-content {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .debug-content {
+    width: 280px;
+    max-height: 70vh;
+  }
+
+  .weather-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .speed-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 場景選擇器樣式 */
+.scene-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.scene-btn {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #00ff00;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.scene-btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+
+.scene-btn.active {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+  box-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+  color: #ffffff;
+}
+
+/* 角色選擇按鈕樣式 */
+.character-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.character-btn {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #ff6b9d;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.character-btn:hover {
+  background: rgba(255, 107, 157, 0.1);
+  border-color: #ff6b9d;
+  box-shadow: 0 0 8px rgba(255, 107, 157, 0.3);
+}
+
+.character-btn.active {
+  background: rgba(255, 107, 157, 0.2);
+  border-color: #ff6b9d;
+  box-shadow: 0 0 12px rgba(255, 107, 157, 0.5);
+  color: #ffffff;
+}
+
+/* 場景按鈕響應式調整 */
+@media (max-width: 768px) {
+  .scene-buttons {
+    flex-direction: column;
+  }
+  
+  .scene-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  
+  .character-buttons {
+    flex-direction: column;
+  }
+  
+  .character-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}

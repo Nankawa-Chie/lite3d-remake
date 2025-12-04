@@ -1,0 +1,49 @@
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+.loading-screen.active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease;
+}
+
+.loading-screen-container {
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.progress-text {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.progress-bar-container {
+  width: 200px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #00ff88;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}

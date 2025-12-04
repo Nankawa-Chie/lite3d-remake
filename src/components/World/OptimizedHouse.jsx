@@ -53,10 +53,10 @@ function OptimizedHouse(props) {
     () => ({
       brick: {
         urls: [
-          "src/assets/textures/bricks/color.jpg",
-          "src/assets/textures/bricks/normal.jpg",
-          "src/assets/textures/bricks/roughness.jpg",
-          "src/assets/textures/bricks/ambientOcclusion.jpg",
+          "/assets/textures/bricks/color.jpg",
+          "/assets/textures/bricks/normal.jpg",
+          "/assets/textures/bricks/roughness.jpg",
+          "/assets/textures/bricks/ambientOcclusion.jpg",
         ],
         options: {
           repeat: [2, 2],
@@ -65,7 +65,7 @@ function OptimizedHouse(props) {
         },
       },
       floor: {
-        urls: ["src/assets/textures/floor.jpg"],
+        urls: ["/assets/textures/floor.jpg"],
         options: {
           repeat: [6, 6],
           wrapS: THREE.RepeatWrapping,

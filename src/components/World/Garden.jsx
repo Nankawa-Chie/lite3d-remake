@@ -7,7 +7,7 @@ export default function Garden(props) {
 
   useEffect(() => {
     // 创建一个新的加载器，不使用 useGLTF 的缓存
-    new GLTFLoader().load("src/assets/models/garden_v1.glb", (gltf) => {
+    new GLTFLoader().load("/assets/models/garden_v1.glb", (gltf) => {
       const loadedScene = gltf.scene;
       loadedScene.traverse((child) => {
         if (child.isMesh) {

@@ -9,7 +9,7 @@ import {useGLTF} from "@react-three/drei";
  * @param {Array} props.rotation - 旋转角度 [x, y, z]
  */
 export default function NightPool(props) {
-  const {scene} = useGLTF("/src/assets/models/the_night_pool.glb");
+  const {scene} = useGLTF("/assets/models/the_night_pool.glb");
 
   // 使用 useMemo 缓存克隆后的场景，避免每次渲染都克隆
   const clonedScene = useMemo(() => {
@@ -31,4 +31,4 @@ export default function NightPool(props) {
 }
 
 // 预加载模型以提升性能
-useGLTF.preload("/src/assets/models/the_night_pool.glb");
+useGLTF.preload("/assets/models/the_night_pool.glb");

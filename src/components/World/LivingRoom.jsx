@@ -16,7 +16,7 @@ import {useGLTF} from "@react-three/drei";
  */
 export default function LivingRoom(props) {
   // 使用drei的useGLTF辅助函数加载GLB模型
-  const {scene} = useGLTF("src/assets/models/cozy_living_room_baked.glb");
+  const {scene} = useGLTF("/assets/models/cozy_living_room_baked.glb");
 
   // useMemo 缓存修改后的场景。内部的逻辑只在`scene`对象变化时执行。
   const modifiedScene = useMemo(() => {
@@ -57,4 +57,4 @@ export default function LivingRoom(props) {
 }
 
 // 预加载模型，以便在组件挂载时能更快显示，提升用户体验
-useGLTF.preload("src/assets/models/cozy_living_room_baked.glb");
+useGLTF.preload("/assets/models/cozy_living_room_baked.glb");

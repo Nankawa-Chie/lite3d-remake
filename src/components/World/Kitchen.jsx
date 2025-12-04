@@ -10,7 +10,7 @@ import {useGLTF} from "@react-three/drei";
  * @param {Array} props.rotation - 旋转角度 [x, y, z]
  */
 export default function Kitchen(props) {
-  const {scene} = useGLTF("/src/assets/models/kitchen_v.001.glb");
+  const {scene} = useGLTF("/assets/models/kitchen_v.001.glb");
 
   // 使用 useMemo 缓存克隆后的场景，避免每次渲染都克隆
   const modifiedScene = useMemo(() => {
@@ -33,4 +33,4 @@ export default function Kitchen(props) {
 }
 
 // 预加载模型以提升性能
-useGLTF.preload("/src/assets/models/kitchen_v.001.glb");
+useGLTF.preload("/assets/models/kitchen_v.001.glb");

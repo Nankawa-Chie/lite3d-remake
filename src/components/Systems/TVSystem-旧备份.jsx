@@ -56,7 +56,7 @@ function TVSystem({position = [0, 2.5, -3.9]}) {
 
     // Load font for subtitles and timer
     new FontLoader().load(
-      "src/assets/fonts/Ma_Shan_Zheng_Regular.json",
+      "/assets/fonts/Ma_Shan_Zheng_Regular.json",
       (font) => {
         setLoadedFont(font);
         // Pre-cache character geometries

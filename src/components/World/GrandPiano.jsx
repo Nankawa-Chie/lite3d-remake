@@ -10,7 +10,7 @@ import {useGLTF} from "@react-three/drei";
  * @param {Array} props.rotation - 旋转角度 [x, y, z]
  */
 export default function GrandPiano(props) {
-  const {scene} = useGLTF("/src/assets/models/grand_piano_marble.glb");
+  const {scene} = useGLTF("/assets/models/grand_piano_marble.glb");
 
   // 使用 useMemo 缓存克隆后的场景，避免每次渲染都克隆
   const clonedScene = useMemo(() => {
@@ -32,4 +32,4 @@ export default function GrandPiano(props) {
 }
 
 // 预加载模型以提升性能
-useGLTF.preload("/src/assets/models/grand_piano_marble.glb");
+useGLTF.preload("/assets/models/grand_piano_marble.glb");

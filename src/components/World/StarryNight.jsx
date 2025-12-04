@@ -7,7 +7,7 @@ import * as THREE from "three";
  * @description 针对 Tilt Brush 模型优化的加载组件
  */
 export default function StarryNight(props) {
-  const modelPath = "src/assets/models/starry_night.glb"; // 确保路径正确
+  const modelPath = "/assets/models/starry_night.glb"; // 确保路径正确
   const {scene} = useGLTF(modelPath);
 
   // 这些关键词通常暗示 Tilt Brush 中的发光材质
@@ -79,4 +79,4 @@ export default function StarryNight(props) {
   return <primitive object={modifiedScene} {...props} />;
 }
 
-useGLTF.preload("src/assets/models/starry_night.glb");
+useGLTF.preload("/assets/models/starry_night.glb");

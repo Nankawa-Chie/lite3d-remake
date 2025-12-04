@@ -26,6 +26,7 @@ import GrandPiano from "../World/GrandPiano"; // 大理石钢琴
 import GrayCouch from "../World/GrayCouch"; // 灰色L型沙发
 import Kitchen from "../World/Kitchen"; // 厨房
 import NightPool from "../World/NightPool"; // 夜晚泳池
+import Plantation from "../World/Plantation"; // 种植园
 
 // ... (LoggedPlayer 方便調試)
 const LoggedMilkPlayer = React.forwardRef((props, ref) => {
@@ -304,6 +305,9 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
 
             {/* 夜晚泳池 - 放置在场景中 */}
             <NightPool position={[85, 0, -23.5]} scale={0.01} rotation={[0, 0, 0]} />
+
+            {/* 种植园 - 放置在场景中 */}
+            <Plantation position={[85, 0, 1]} scale={0.002} rotation={[0, -Math.PI / 2, 0]} />
 
             {/* MMD Test Mount */}
             {mmdTest.active && mmdTest.config && (

@@ -60,24 +60,24 @@ function BlendedTerrain({terrainParams, ...cannonProps}) {
     snowRoughness,
   ] = useLoader(THREE.TextureLoader, [
     // 沙子纹理
-    "src/assets/terrain/textures/sand/Ground054_1K-PNG_Color.png",
-    "src/assets/terrain/textures/sand/Ground054_1K-PNG_NormalGL.png",
-    "src/assets/terrain/textures/sand/Ground054_1K-PNG_Roughness.png",
+    "/assets/terrain/textures/sand/Ground054_1K-PNG_Color.png",
+    "/assets/terrain/textures/sand/Ground054_1K-PNG_NormalGL.png",
+    "/assets/terrain/textures/sand/Ground054_1K-PNG_Roughness.png",
 
     // 草地纹理
-    "src/assets/terrain/textures/grass/Ground037_1K-PNG_Color.png",
-    "src/assets/terrain/textures/grass/Ground037_1K-PNG_NormalGL.png",
-    "src/assets/terrain/textures/grass/Ground037_1K-PNG_Roughness.png",
+    "/assets/terrain/textures/grass/Ground037_1K-PNG_Color.png",
+    "/assets/terrain/textures/grass/Ground037_1K-PNG_NormalGL.png",
+    "/assets/terrain/textures/grass/Ground037_1K-PNG_Roughness.png",
 
     // 岩石纹理
-    "src/assets/terrain/textures/rock/Rock058_1K-PNG_Color.png",
-    "src/assets/terrain/textures/rock/Rock058_1K-PNG_NormalGL.png",
-    "src/assets/terrain/textures/rock/Rock058_1K-PNG_Roughness.png",
+    "/assets/terrain/textures/rock/Rock058_1K-PNG_Color.png",
+    "/assets/terrain/textures/rock/Rock058_1K-PNG_NormalGL.png",
+    "/assets/terrain/textures/rock/Rock058_1K-PNG_Roughness.png",
 
     // 雪纹理
-    "src/assets/terrain/textures/snow/Snow010A_1K-PNG_Color.png",
-    "src/assets/terrain/textures/snow/Snow010A_1K-PNG_NormalGL.png",
-    "src/assets/terrain/textures/snow/Snow010A_1K-PNG_Roughness.png",
+    "/assets/terrain/textures/snow/Snow010A_1K-PNG_Color.png",
+    "/assets/terrain/textures/snow/Snow010A_1K-PNG_NormalGL.png",
+    "/assets/terrain/textures/snow/Snow010A_1K-PNG_Roughness.png",
   ]);
 
   /**

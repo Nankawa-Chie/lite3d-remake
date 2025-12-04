@@ -367,11 +367,11 @@ function Chart3D({position = [0, 0, 0], scale = 1, rotation = [0, 0, 0]}) {
   useEffect(() => {
     const initSVGButtons = async () => {
       const buttonConfigs = [
-        {name: "rangeDown", path: "/src/assets/icons/minus.svg", position: new THREE.Vector3(-4.6, 1.5, 0)},
-        {name: "rangeUp", path: "/src/assets/icons/plus.svg", position: new THREE.Vector3(-2.4, 1.5, 0)},
-        {name: "toggle", path: "/src/assets/icons/toggle.svg", position: new THREE.Vector3(-0.2, 1.5, 0)},
-        {name: "add", path: "/src/assets/icons/add.svg", position: new THREE.Vector3(2, 1.5, 0)},
-        {name: "delete", path: "/src/assets/icons/delete.svg", position: new THREE.Vector3(4.2, 1.5, 0)},
+        {name: "rangeDown", path: "/assets/icons/minus.svg", position: new THREE.Vector3(-4.6, 1.5, 0)},
+        {name: "rangeUp", path: "/assets/icons/plus.svg", position: new THREE.Vector3(-2.4, 1.5, 0)},
+        {name: "toggle", path: "/assets/icons/toggle.svg", position: new THREE.Vector3(-0.2, 1.5, 0)},
+        {name: "add", path: "/assets/icons/add.svg", position: new THREE.Vector3(2, 1.5, 0)},
+        {name: "delete", path: "/assets/icons/delete.svg", position: new THREE.Vector3(4.2, 1.5, 0)},
       ];
 
       const buttons = {};

@@ -44,7 +44,7 @@ export default function SabaVrmCharacter(props) {
     // Load the VRM model file.
     loader.load(
       // IMPORTANT: Replace this path with the correct path to your VRM model.
-      "src/assets/models/Saba_1.0.2.vrm",
+      "/assets/models/Saba_1.0.2.vrm",
 
       // --- onLoad Callback ---
       (gltf) => {

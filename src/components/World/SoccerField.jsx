@@ -14,9 +14,9 @@ extend({TextGeometry});
  * @returns {JSX.Element} 足球场组件
  */
 export default function SoccerField({position = [-50, 0.02, 0]}) {
-  const ballTexture = useLoader(THREE.TextureLoader, "/src/assets/textures/soccer_ball.jpg");
-  const matcapTexture = useLoader(THREE.TextureLoader, "/src/assets/textures/matcaps/8.png");
-  const font = useLoader(FontLoader, "/src/assets/fonts/Sevillana_Regular.json");
+  const ballTexture = useLoader(THREE.TextureLoader, "/assets/textures/soccer_ball.jpg");
+  const matcapTexture = useLoader(THREE.TextureLoader, "/assets/textures/matcaps/8.png");
+  const font = useLoader(FontLoader, "/assets/fonts/Sevillana_Regular.json");
 
   // 标准足球场尺寸（单位：米）
   const FIELD_WIDTH = 68;

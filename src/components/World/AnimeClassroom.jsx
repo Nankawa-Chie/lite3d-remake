@@ -10,7 +10,7 @@ import * as THREE from "three";
  */
 function JapaneseChart() {
   // 使用 useTexture 鉤子加載你提供的 Gojuon.svg 紋理。
-  const chartTexture = useTexture("src/assets/plantuml/Gojuon.svg");
+  const chartTexture = useTexture("/assets/plantuml/Gojuon.svg");
 
   // 確保紋理使用正確的色彩空間以獲得最佳顯示效果。
   chartTexture.encoding = THREE.sRGBEncoding;
@@ -43,7 +43,7 @@ function JapaneseChart() {
  */
 function McArmorChart() {
   // 加載 Minecraft 傷害機制 SVG 紋理
-  const chartTexture = useTexture("src/assets/plantuml/MC伤害机制.svg");
+  const chartTexture = useTexture("/assets/plantuml/MC伤害机制.svg");
 
   // 設置紋理屬性
   chartTexture.encoding = THREE.sRGBEncoding;
@@ -77,7 +77,7 @@ function McArmorChart() {
 export default function AnimeClassroom(props) {
   // Load the GLB model using drei's helper.
   // It automatically handles loading states and caching.
-  const {scene} = useGLTF("src/assets/models/anime_class_room.glb");
+  const {scene} = useGLTF("/assets/models/anime_class_room.glb");
 
   // Memoize the processed scene to prevent re-computation on every render.
   const modifiedScene = useMemo(() => {
@@ -132,6 +132,6 @@ export default function AnimeClassroom(props) {
 }
 
 // Preload the model and textures for a smoother user experience.
-useGLTF.preload("src/assets/models/anime_class_room.glb");
-useTexture.preload("src/assets/plantuml/Gojuon.svg");
-useTexture.preload("src/assets/plantuml/MC伤害机制.svg");
+useGLTF.preload("/assets/models/anime_class_room.glb");
+useTexture.preload("/assets/plantuml/Gojuon.svg");
+useTexture.preload("/assets/plantuml/MC伤害机制.svg");

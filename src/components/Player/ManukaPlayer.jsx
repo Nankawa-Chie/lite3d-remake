@@ -13,8 +13,8 @@ import poolManager from "../../utils/ObjectPool";
 // ============================================================================
 const MODEL_CONFIG = {
   modelType: "vrm", // 'vrm' 或 'glb'
-  modelPath: "src/assets/models/Manuka_2.vrm", // VRM模型路径
-  animationPath: "src/assets/models/Manuka.glb", // GLB动画文件路径（仅VRM模式需要）
+  modelPath: "/assets/models/Manuka_2.vrm", // VRM模型路径
+  animationPath: "/assets/models/Manuka.glb", // GLB动画文件路径（仅VRM模式需要）
 };
 
 // 定义玩家所有可能的状态，便于管理和切换
@@ -121,7 +121,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
   const [animationsLoaded, setAnimationsLoaded] = useState(false);
 
   // GLB兼容模式：使用useGLTF加载（仅在GLB模式下）
-  const glbData = MODEL_CONFIG.modelType === "glb" ? useGLTF("src/assets/models/Manuka_2.glb") : null;
+  const glbData = MODEL_CONFIG.modelType === "glb" ? useGLTF("/assets/models/Manuka_2.glb") : null;
 
   // 使用useAnimations管理动画
   const {actions, mixer} = useAnimations(animationsRef.current, modelRef);
@@ -171,7 +171,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
   const chairRef = useRef(); // 椅子对象引用
   const chairAnimationProgress = useRef(0); // 椅子动画进度 (0-1)
   const chairTargetProgress = useRef(0); // 椅子目标进度
-  const chairGltf = useGLTF("src/assets/models/plastic_chair.glb"); // 加载椅子模型
+  const chairGltf = useGLTF("/assets/models/plastic_chair.glb"); // 加载椅子模型
 
   // --- Camera Offset Smoothing ---
   const currentVerticalOffset = useRef(0); // 当前垂直偏移
@@ -1549,8 +1549,8 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
 
 // 预加载模型（仅GLB模式需要）
 if (MODEL_CONFIG.modelType === "glb") {
-  useGLTF.preload("src/assets/models/Manuka_2.glb");
+  useGLTF.preload("/assets/models/Manuka_2.glb");
 }
-useGLTF.preload("src/assets/models/plastic_chair.glb");
+useGLTF.preload("/assets/models/plastic_chair.glb");
 
 export default ManukaPlayer;

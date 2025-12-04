@@ -207,7 +207,7 @@ function useYouTubeTexture(iframeElement, isActive, videoInfo) {
  * @returns {JSX.Element}
  */
 export default function Television(props) {
-  const {scene} = useGLTF("src/assets/models/modern_entertainment_center_free.glb");
+  const {scene} = useGLTF("/assets/models/modern_entertainment_center_free.glb");
 
   const tvGroupRef = useRef();
   const progressBarFillRef = useRef();
@@ -238,7 +238,7 @@ export default function Television(props) {
     videoRef.current = videoElement;
 
     new FontLoader().load(
-      "src/assets/fonts/Ma_Shan_Zheng_Regular.json",
+      "/assets/fonts/Ma_Shan_Zheng_Regular.json",
       (font) => {
         setLoadedFont(font);
         // 预缓存字符几何体
@@ -790,4 +790,4 @@ export default function Television(props) {
   );
 }
 
-useGLTF.preload("src/assets/models/modern_entertainment_center_free.glb");
+useGLTF.preload("/assets/models/modern_entertainment_center_free.glb");

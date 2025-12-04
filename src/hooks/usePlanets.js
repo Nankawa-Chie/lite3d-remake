@@ -3,7 +3,7 @@ import * as THREE from "three";
 import {useLoader} from "@react-three/fiber";
 
 // 纹理基础路径
-const textureBasePath = "src/assets/textures/SolarSystem/";
+const textureBasePath = "/assets/textures/SolarSystem/";
 
 // 星球数据，我们把缩放逻辑直接加在这里
 const planetData = [

@@ -91,7 +91,7 @@ const MilkPlayer = forwardRef(({colliders = []}, ref) => {
   const canJump = useRef(true);
 
   // --- Animation Setup ---
-  const gltf = useGLTF("src/assets/models/Milk.glb");
+  const gltf = useGLTF("/assets/models/Milk.glb");
   const {actions, mixer} = useAnimations(gltf.animations, modelRef);
   const currentAction = useRef("idle");
 
@@ -135,7 +135,7 @@ const MilkPlayer = forwardRef(({colliders = []}, ref) => {
   const chairRef = useRef(); // 椅子对象引用
   const chairAnimationProgress = useRef(0); // 椅子动画进度 (0-1)
   const chairTargetProgress = useRef(0); // 椅子目标进度
-  const chairGltf = useGLTF("src/assets/models/plastic_chair.glb"); // 加载椅子模型
+  const chairGltf = useGLTF("/assets/models/plastic_chair.glb"); // 加载椅子模型
 
   // --- Camera Offset Smoothing ---
   const currentVerticalOffset = useRef(0); // 当前垂直偏移
@@ -1218,6 +1218,6 @@ const MilkPlayer = forwardRef(({colliders = []}, ref) => {
 });
 
 // 预加载椅子模型
-useGLTF.preload("src/assets/models/plastic_chair.glb");
+useGLTF.preload("/assets/models/plastic_chair.glb");
 
 export default MilkPlayer;

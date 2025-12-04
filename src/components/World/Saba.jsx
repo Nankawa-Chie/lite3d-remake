@@ -27,7 +27,7 @@ export default function SabaCharacter(props) {
 
     // 加载模型
     loader.load(
-      "src/assets/models/Saba.glb", // 模型的路径
+      "/assets/models/Saba.glb", // 模型的路径
       (gltf) => {
         // --- 加载成功后的回调函数 ---
         const loadedScene = gltf.scene;

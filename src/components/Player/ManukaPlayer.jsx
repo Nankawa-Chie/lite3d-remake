@@ -13,7 +13,7 @@ import poolManager from "../../utils/ObjectPool";
 // ============================================================================
 const MODEL_CONFIG = {
   modelType: "vrm", // 'vrm' 或 'glb'
-  modelPath: "/assets/models/Manuka_3.vrm", // VRM模型路径
+  modelPath: "/assets/models/Manuka_2.vrm", // VRM模型路径
   animationPath: "/assets/models/Manuka.glb", // GLB动画文件路径（仅VRM模式需要）
 };
 

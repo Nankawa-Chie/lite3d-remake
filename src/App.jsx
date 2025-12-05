@@ -2,7 +2,8 @@
 import {Suspense, useCallback, useRef, useState, useEffect, useMemo} from "react";
 import {Canvas} from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
-import {Loader, View} from "@react-three/drei";
+import {useProgress, View} from "@react-three/drei";
+import LoadingScreen from "./components/UI/LoadingScreen";
 import * as THREE from "three";
 import {PerfHeadless} from "r3f-perf";
 import "./App.css";
@@ -26,6 +27,9 @@ import {PERFORMANCE_CONFIG} from "./config/PerformanceConfig";
 import useGameStore from "./stores/gameStore";
 
 function App() {
+  // 加载进度管理
+  const { active, progress, loaded, total, item } = useProgress();
+
   function formatTs(){
     const d=new Date();
     const pad=n=> String(n).padStart(2,'0');
@@ -536,7 +540,13 @@ function App() {
         </View>
       </Canvas>
 
-      <Loader dataInterpolation={(p) => `Loading ${p.toFixed(2)}%`} />
+      <LoadingScreen 
+        active={active} 
+        progress={progress} 
+        loaded={loaded} 
+        total={total} 
+        item={item} 
+      />
       
       {/* Quaternion Scene UI Overlay */}
       {currentScene === "quaternion" && (

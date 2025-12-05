@@ -13,7 +13,7 @@ import poolManager from "../../utils/ObjectPool";
 // ============================================================================
 const MODEL_CONFIG = {
   modelType: "vrm", // 'vrm' 或 'glb'
-  modelPath: "/assets/models/Manuka_2.vrm", // VRM模型路径
+  modelPath: "/assets/models/Manuka_3.vrm", // VRM模型路径
   animationPath: "/assets/models/Manuka.glb", // GLB动画文件路径（仅VRM模式需要）
 };
 
@@ -481,18 +481,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
             gltf.animations.map((a) => a.name)
           );
 
-          // 修复动画循环时的T-Pose闪现问题（VRM+外部动画）
-          // 策略：使用LoopOnce + 手动重启，完全避免Three.js的循环插值
-          gltf.animations.forEach((clip) => {
-            clip.optimize();
-
-            // 关键：使用LoopOnce而不是LoopRepeat
-            // 我们会在useFrame中监听动画结束并手动重启
-            clip.loop = THREE.LoopOnce;
-            clip.clampWhenFinished = false; // 不要在结束时保持最后一帧
-          });
-
-          console.log("✓ 动画设置为手动循环模式（防止T-Pose闪现）");
+          // 动画已在 Blender 中修正起始帧为0，直接使用原生循环即可
 
           // 暂存原始动画数据
           rawAnimationsRef.current = gltf.animations;
@@ -808,9 +797,9 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
       if (currentAnim) currentAnim.fadeOut(0.2);
       const newAnim = actions[newAction] || actions[newAction.charAt(0).toUpperCase() + newAction.slice(1)];
       if (newAnim) {
-        // VRM模式：确保使用LoopOnce（在useFrame中手动重启）
+        // VRM模式：改回使用 LoopRepeat
         if (MODEL_CONFIG.modelType === "vrm") {
-          newAnim.setLoop(THREE.LoopOnce, 1);
+          newAnim.setLoop(THREE.LoopRepeat, Infinity);
           newAnim.clampWhenFinished = false;
         } else {
           // GLB模式：使用标准循环
@@ -1432,20 +1421,6 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
     // 注意：VRM模式下必须每帧都更新mixer，否则会导致T-Pose闪烁
     if (mixer) {
       mixer.update(clampedDelta);
-
-      // VRM模式：监听动画结束并手动重启（避免Three.js循环插值导致T-Pose）
-      if (MODEL_CONFIG.modelType === "vrm" && actions && currentAction.current) {
-        const action = actions[currentAction.current];
-        if (action && action.loop === THREE.LoopOnce && !action.paused) {
-          // 检查是否接近动画结束（留0.016秒缓冲）
-          const timeRemaining = action.getClip().duration - action.time;
-          if (timeRemaining < 0.016 && timeRemaining >= 0) {
-            // 手动重启动画，避免自动循环的插值问题
-            action.reset();
-            action.play();
-          }
-        }
-      }
     }
 
     // 7. 動畫速度調整 (優化：減少計算頻率)

@@ -109,7 +109,7 @@ function PostProcessingRenderer({settings, enabled = false}) {
   });
 
   return (
-    <EffectComposer multisampling={msaa}>
+    <EffectComposer multisampling={msaa} enableNormalPass={!!settings.enableSSAO}>
       {/* Bloom 效果 - 发光效果 */}
       {settings.enableBloom && (() => {
         const Selective = settings.bloomMode === 'layer' ? SelectiveBloom : Bloom;
@@ -151,8 +151,8 @@ function PostProcessingRenderer({settings, enabled = false}) {
       {/* 暗角效果 */}
       {settings.enableVignette && (
         <Vignette
-          offset={0.15}
-          darkness={0.9}
+          offset={settings.vignetteOffset ?? 0.2}
+          darkness={settings.vignetteDarkness ?? 0.35}
           blendFunction={BlendFunction.NORMAL}
         />
       )}

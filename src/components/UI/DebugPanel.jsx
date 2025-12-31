@@ -870,6 +870,92 @@ function DebugPanel({
           <div className="debug-section">
             <h4>🎨 Rendering & Post-Processing</h4>
 
+            {/* Toon-ish（Soft Toon）风格化：白名单材质启用（目前地形启用） */}
+            <h5>Toon-ish (Soft Toon)</h5>
+            <div className="setting-row">
+              <label>Enable Toon-ish:</label>
+              <input
+                type="checkbox"
+                checked={renderingSettings.enableToonishShading}
+                onChange={(e) => handleRenderingSettingChange('enableToonishShading', e.target.checked)}
+              />
+            </div>
+
+            <div className="setting-row">
+              <label>Ramp Steps:</label>
+              <input
+                type="range"
+                min="2"
+                max="8"
+                step="1"
+                value={renderingSettings.toonRampSteps ?? 4}
+                onChange={(e) => handleRenderingSettingChange('toonRampSteps', parseInt(e.target.value))}
+              />
+              <span>{renderingSettings.toonRampSteps ?? 4}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Ramp Smoothness:</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={renderingSettings.toonRampSmoothness ?? 0.55}
+                onChange={(e) => handleRenderingSettingChange('toonRampSmoothness', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.toonRampSmoothness ?? 0.55).toFixed(2)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Rim Strength:</label>
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value={renderingSettings.toonRimStrength ?? 0.35}
+                onChange={(e) => handleRenderingSettingChange('toonRimStrength', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.toonRimStrength ?? 0.35).toFixed(2)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Rim Power:</label>
+              <input
+                type="range"
+                min="0.5"
+                max="8"
+                step="0.05"
+                value={renderingSettings.toonRimPower ?? 2.5}
+                onChange={(e) => handleRenderingSettingChange('toonRimPower', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.toonRimPower ?? 2.5).toFixed(2)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Rim Color:</label>
+              <input
+                type="color"
+                value={renderingSettings.toonRimColor ?? '#dbe9ff'}
+                onChange={(e) => handleRenderingSettingChange('toonRimColor', e.target.value)}
+              />
+            </div>
+
+            <div className="setting-row">
+              <label>Shadow Lift:</label>
+              <input
+                type="range"
+                min="0"
+                max="0.5"
+                step="0.01"
+                value={renderingSettings.toonShadowLift ?? 0.08}
+                onChange={(e) => handleRenderingSettingChange('toonShadowLift', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.toonShadowLift ?? 0.08).toFixed(2)}</span>
+            </div>
+
+
             {/* 基础渲染设置 */}
             <div className="setting-row">
               <label>Enable Shadows:</label>
@@ -918,6 +1004,171 @@ function DebugPanel({
             </div>
 
             {/* 后处理开关 */}
+            {/* View Distance & Haze（阶段4C：远景沉浸） */}
+            <h5>View Distance & Haze</h5>
+            <div className="setting-row">
+              <label>View Distance:</label>
+              <input
+                type="range"
+                min="200"
+                max="500"
+                step="10"
+                value={renderingSettings.viewDistance ?? 350}
+                onChange={(e) => handleRenderingSettingChange('viewDistance', parseFloat(e.target.value))}
+              />
+              <span>{renderingSettings.viewDistance ?? 350}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Haze Near:</label>
+              <input
+                type="range"
+                min="0"
+                max="120"
+                step="5"
+                value={renderingSettings.hazeNear ?? 20}
+                onChange={(e) => handleRenderingSettingChange('hazeNear', parseFloat(e.target.value))}
+              />
+              <span>{renderingSettings.hazeNear ?? 20}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Haze Far:</label>
+              <input
+                type="range"
+                min="200"
+                max="500"
+                step="10"
+                value={renderingSettings.hazeFar ?? (renderingSettings.viewDistance ?? 350)}
+                onChange={(e) => handleRenderingSettingChange('hazeFar', parseFloat(e.target.value))}
+              />
+              <span>{renderingSettings.hazeFar ?? (renderingSettings.viewDistance ?? 350)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Haze Density (Day):</label>
+              <input
+                type="range"
+                min="0"
+                max="0.01"
+                step="0.0001"
+                value={renderingSettings.hazeDensityDay ?? 0.0012}
+                onChange={(e) => handleRenderingSettingChange('hazeDensityDay', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.hazeDensityDay ?? 0.0012).toFixed(4)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Haze Density (Night):</label>
+              <input
+                type="range"
+                min="0"
+                max="0.02"
+                step="0.0002"
+                value={renderingSettings.hazeDensityNight ?? 0.0028}
+                onChange={(e) => handleRenderingSettingChange('hazeDensityNight', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.hazeDensityNight ?? 0.0028).toFixed(4)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Haze Color (Day):</label>
+              <input
+                type="color"
+                value={renderingSettings.hazeColorDay ?? '#b8c7d6'}
+                onChange={(e) => handleRenderingSettingChange('hazeColorDay', e.target.value)}
+              />
+            </div>
+
+            <div className="setting-row">
+              <label>Haze Color (Night):</label>
+              <input
+                type="color"
+                value={renderingSettings.hazeColorNight ?? '#0b1320'}
+                onChange={(e) => handleRenderingSettingChange('hazeColorNight', e.target.value)}
+              />
+            </div>
+
+            <h5>Terrain Far Detail</h5>
+            <div className="setting-row">
+              <label>Fade Start:</label>
+              <input
+                type="range"
+                min="0"
+                max="400"
+                step="10"
+                value={renderingSettings.terrainDistanceFadeStart ?? 120}
+                onChange={(e) => handleRenderingSettingChange('terrainDistanceFadeStart', parseFloat(e.target.value))}
+              />
+              <span>{renderingSettings.terrainDistanceFadeStart ?? 120}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Fade End:</label>
+              <input
+                type="range"
+                min="50"
+                max="500"
+                step="10"
+                value={renderingSettings.terrainDistanceFadeEnd ?? 350}
+                onChange={(e) => handleRenderingSettingChange('terrainDistanceFadeEnd', parseFloat(e.target.value))}
+              />
+              <span>{renderingSettings.terrainDistanceFadeEnd ?? 350}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Far Tex Scale:</label>
+              <input
+                type="range"
+                min="0.05"
+                max="1"
+                step="0.01"
+                value={renderingSettings.terrainFarTexScale ?? 0.35}
+                onChange={(e) => handleRenderingSettingChange('terrainFarTexScale', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.terrainFarTexScale ?? 0.35).toFixed(2)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Far Normal Scale:</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={renderingSettings.terrainFarNormalScale ?? 0.35}
+                onChange={(e) => handleRenderingSettingChange('terrainFarNormalScale', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.terrainFarNormalScale ?? 0.35).toFixed(2)}</span>
+            </div>
+
+            <div className="setting-row">
+              <label>Far Roughness Boost:</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={renderingSettings.terrainFarRoughnessBoost ?? 0.35}
+                onChange={(e) => handleRenderingSettingChange('terrainFarRoughnessBoost', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.terrainFarRoughnessBoost ?? 0.35).toFixed(2)}</span>
+            </div>
+
+            {/* 环境 HDRI 强度：控制“环境亮度”而不是盲目压低曝光 */}
+            <div className="setting-row">
+              <label>Environment (HDRI):</label>
+              <input
+                type="range"
+                min="0"
+                max="2.0"
+                step="0.05"
+                value={renderingSettings.environmentIntensity ?? 0.35}
+                onChange={(e) => handleRenderingSettingChange('environmentIntensity', parseFloat(e.target.value))}
+              />
+              <span>{(renderingSettings.environmentIntensity ?? 0.35).toFixed(2)}</span>
+            </div>
+
             <div className="setting-row">
               <label>Enable Post-Processing:</label>
               <input
@@ -980,6 +1231,36 @@ function DebugPanel({
                     <option value="on">On</option>
                   </select>
                 </div>
+
+                {/* Vignette 参数（开启时可调，避免一上来就“假”）*/}
+                {renderingSettings.enableVignette && (
+                  <>
+                    <div className="setting-row">
+                      <label>Vignette Offset:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={renderingSettings.vignetteOffset ?? 0.2}
+                        onChange={(e) => handleRenderingSettingChange('vignetteOffset', parseFloat(e.target.value))}
+                      />
+                      <span>{(renderingSettings.vignetteOffset ?? 0.2).toFixed(2)}</span>
+                    </div>
+                    <div className="setting-row">
+                      <label>Vignette Darkness:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={renderingSettings.vignetteDarkness ?? 0.35}
+                        onChange={(e) => handleRenderingSettingChange('vignetteDarkness', parseFloat(e.target.value))}
+                      />
+                      <span>{(renderingSettings.vignetteDarkness ?? 0.35).toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
 
                 {/* Bloom 模式 */}
                 <div className="setting-row">
@@ -1272,40 +1553,83 @@ function DebugPanel({
                     onChange={(e) => handleRenderingSettingChange("enableFog", e.target.checked)}
                   />
                 </div>
+
                 {renderingSettings.enableFog && (
                   <>
                     <div className="setting-row">
-                      <label>Fog Near:</label>
-                      <input
-                        type="range"
-                        min="0.1"
-                        max="50"
-                        step="0.1"
-                        value={renderingSettings.fogNear}
-                        onChange={(e) => handleRenderingSettingChange("fogNear", parseFloat(e.target.value))}
-                      />
-                      <span>{renderingSettings.fogNear}</span>
+                      <label>Fog Type:</label>
+                      <select
+                        value={renderingSettings.fogType || 'linear'}
+                        onChange={(e) => handleRenderingSettingChange('fogType', e.target.value)}
+                      >
+                        <option value="linear">Linear</option>
+                        <option value="exp2">Exp2</option>
+                      </select>
                     </div>
-                    <div className="setting-row">
-                      <label>Fog Far:</label>
-                      <input
-                        type="range"
-                        min="10"
-                        max="500"
-                        step="5"
-                        value={renderingSettings.fogFar}
-                        onChange={(e) => handleRenderingSettingChange("fogFar", parseFloat(e.target.value))}
-                      />
-                      <span>{renderingSettings.fogFar}</span>
-                    </div>
-                    <div className="setting-row">
-                      <label>Fog Color:</label>
-                      <input
-                        type="color"
-                        value={renderingSettings.fogColor}
-                        onChange={(e) => handleRenderingSettingChange("fogColor", e.target.value)}
-                      />
-                    </div>
+
+                    {/* Linear Fog */}
+                    {(!renderingSettings.fogType || renderingSettings.fogType === 'linear') && (
+                      <>
+                        <div className="setting-row">
+                          <label>Fog Near:</label>
+                          <input
+                            type="range"
+                            min="0.1"
+                            max="50"
+                            step="0.1"
+                            value={renderingSettings.fogNear}
+                            onChange={(e) => handleRenderingSettingChange("fogNear", parseFloat(e.target.value))}
+                          />
+                          <span>{renderingSettings.fogNear}</span>
+                        </div>
+                        <div className="setting-row">
+                          <label>Fog Far:</label>
+                          <input
+                            type="range"
+                            min="10"
+                            max="500"
+                            step="5"
+                            value={renderingSettings.fogFar}
+                            onChange={(e) => handleRenderingSettingChange("fogFar", parseFloat(e.target.value))}
+                          />
+                          <span>{renderingSettings.fogFar}</span>
+                        </div>
+                        <div className="setting-row">
+                          <label>Fog Color:</label>
+                          <input
+                            type="color"
+                            value={renderingSettings.fogColor}
+                            onChange={(e) => handleRenderingSettingChange("fogColor", e.target.value)}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Exp2 Fog */}
+                    {(renderingSettings.fogType === 'exp2') && (
+                      <>
+                        <div className="setting-row">
+                          <label>Fog Density:</label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="0.02"
+                            step="0.0005"
+                            value={renderingSettings.fogDensity ?? 0.0015}
+                            onChange={(e) => handleRenderingSettingChange('fogDensity', parseFloat(e.target.value))}
+                          />
+                          <span>{(renderingSettings.fogDensity ?? 0.0015).toFixed(4)}</span>
+                        </div>
+                        <div className="setting-row">
+                          <label>Fog Color:</label>
+                          <input
+                            type="color"
+                            value={renderingSettings.fogColor}
+                            onChange={(e) => handleRenderingSettingChange("fogColor", e.target.value)}
+                          />
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
               </div>

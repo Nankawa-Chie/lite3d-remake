@@ -12,8 +12,8 @@ function JapaneseChart() {
   // 使用 useTexture 鉤子加載你提供的 Gojuon.svg 紋理。
   const chartTexture = useTexture("/assets/plantuml/Gojuon.svg");
 
-  // 確保紋理使用正確的色彩空間以獲得最佳顯示效果。
-  chartTexture.encoding = THREE.sRGBEncoding;
+  // 确保纹理使用正确的色彩空间以获得最佳显示效果。
+  chartTexture.colorSpace = THREE.SRGBColorSpace;
   // SVG 紋理可能需要翻轉 Y 軸才能正確顯示，這是一個常見的設置。
   chartTexture.flipY = false;
 
@@ -45,8 +45,8 @@ function McArmorChart() {
   // 加載 Minecraft 傷害機制 SVG 紋理
   const chartTexture = useTexture("/assets/plantuml/MC伤害机制.svg");
 
-  // 設置紋理屬性
-  chartTexture.encoding = THREE.sRGBEncoding;
+  // 设置纹理属性
+  chartTexture.colorSpace = THREE.SRGBColorSpace;
   chartTexture.flipY = false;
 
   return (
@@ -106,7 +106,7 @@ export default function AnimeClassroom(props) {
 
               // If the material has a texture map, ensure correct color space.
               if (material.map) {
-                material.map.encoding = THREE.sRGBEncoding;
+                material.map.colorSpace = THREE.SRGBColorSpace;
               }
 
               // Mark the material as needing an update.

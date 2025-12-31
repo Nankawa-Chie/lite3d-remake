@@ -1,14 +1,14 @@
 import React, {Suspense, useRef, useEffect, useImperativeHandle} from "react";
+import * as THREE from "three";
 import {useFrame} from "@react-three/fiber";
 import {Sky, Environment} from "@react-three/drei";
-import useGameStore from "../../stores/gameStore";
-
 import MilkPlayer from "../Player/MilkPlayer";
 import ManukaPlayer from "../Player/ManukaPlayer";
 import CameraController from "../Camera/CameraController";
 import PhysicsDebugRenderer from "../Debug/PhysicsDebugRenderer";
 import PostProcessingRenderer from "../Rendering/PostProcessingRenderer";
 import FogRenderer from "../Rendering/FogRenderer";
+import useGameStore from "../../stores/gameStore";
 
 import BlendedTerrain from "../World/BlendedTerrain";
 import WeatherSystem from "../Systems/WeatherSystem";
@@ -25,8 +25,6 @@ import {HouseModel} from "../World/NankawaRoom"; // 南川白模房间
 import GrandPiano from "../World/GrandPiano"; // 大理石钢琴
 import GrayCouch from "../World/GrayCouch"; // 灰色L型沙发
 import Kitchen from "../World/Kitchen"; // 厨房
-import NightPool from "../World/NightPool"; // 夜晚泳池
-import Plantation from "../World/Plantation"; // 种植园
 
 // ... (LoggedPlayer 方便調試)
 const LoggedMilkPlayer = React.forwardRef((props, ref) => {
@@ -125,11 +123,14 @@ function World({children, terrainSettings}) {
  * @returns {JSX.Element}
  */
 function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
+  // 避免订阅高频时间导致 GameScene 每帧重渲染：不要 useGameStore(selector) 订阅 time.currentTime
+  const advanceTime = useGameStore.getState().advanceTime;
   // 在 GameScene 渲染時打印日誌
   console.log("%c!!! GameScene is re-rendering !!!", "background: #f00; color: #fff; font-size: 14px;");
 
   const sunRef = useRef();
   const skyRef = useRef();
+  const hemiRef = useRef();
 
   // 從 Store 訂閱地形設置，用於實時響應調參
   const terrainSettings = useGameStore((state) => state.settings.terrain);
@@ -140,29 +141,21 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
   // 訂閱 MMD 測試狀態
   const mmdTest = useGameStore((state) => state.mmdTest);
 
-  // 獲取 Store 的 updateTime action
-  const updateTime = useGameStore.getState().updateTime;
-
   /**
    * Day/Night Cycle and Lighting Logic.
    * 此幀循環直接從 Store 讀取狀態並更新，避免通過 props 回調造成的渲染循環。
    */
   useFrame((state, delta) => {
     // 獲取最新的時間狀態
-    const currentTime = useGameStore.getState().time;
+    // 推进内部时间（不触发每帧 setState，从而避免全场景重渲染/重置）
+    advanceTime(delta);
 
-    // Update time of day - 直接更新到 Store，不觸發組件重新渲染
-    if (currentTime.timeSpeed > 0) {
-      const timeIncrement = delta * currentTime.timeSpeed * 0.1;
-      const newTime = (currentTime.currentTime + timeIncrement * 24) % 24;
-      updateTime(newTime);
-    }
-
-    // 獲取最新的天氣狀態
+    // 获取最新的天气状态
     const currentWeather = useGameStore.getState().weather;
 
-    // Calculate sun position based on time
-    const timeOfDay = currentTime.currentTime / 24;
+    // Calculate sun position based on INTERNAL time (non-reactive)
+    const tNow = useGameStore.getState().getTimeInternal?.() ?? useGameStore.getState().time.currentTime;
+    const timeOfDay = tNow / 24;
     const sunAngle = timeOfDay * Math.PI * 2 - Math.PI / 2;
     const sunX = Math.cos(sunAngle);
     const sunY = Math.sin(sunAngle);
@@ -180,7 +173,7 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
       );
 
       // Adjust light intensity based on time and weather
-      let baseIntensity = Math.max(0.1, Math.min(1, sunY + 0.3));
+      let baseIntensity = Math.max(0.05, Math.min(1.1, sunY + 0.35));
       switch (currentWeather.type) {
         case "cloudy":
           baseIntensity *= 0.7;
@@ -221,8 +214,23 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
         sunRef.current.color.setHex(lightColor);
       } else {
         // Night time light color
-        sunRef.current.color.setHex(0x2244aa);
+        sunRef.current.color.setHex(0x2a4b9a);
       }
+    }
+
+    // Hemisphere fill light: drive day/night ambiance without blowing out exposure
+    if (hemiRef.current) {
+      const dayFactor = THREE.MathUtils.smoothstep(sunY, -0.15, 0.35); // 0=night, 1=day
+      const hemiIntensity = THREE.MathUtils.lerp(0.18, 0.45, dayFactor);
+      hemiRef.current.intensity = hemiIntensity;
+
+      // Slightly bluer at night; slightly warmer at day
+      const skyDay = new THREE.Color(0xbfd8ff);
+      const skyNight = new THREE.Color(0x2a3550);
+      const groundDay = new THREE.Color(0x6b6a64);
+      const groundNight = new THREE.Color(0x0b0d12);
+      hemiRef.current.color.copy(skyNight).lerp(skyDay, dayFactor);
+      hemiRef.current.groundColor.copy(groundNight).lerp(groundDay, dayFactor);
     }
   });
 
@@ -254,6 +262,9 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
         shadow-camera-bottom={-50}
         shadow-bias={-0.001}
       />
+
+      {/* 天空半球光：提供“可控的环境补光”，避免夜晚死黑、白天更有层次 */}
+      <hemisphereLight ref={hemiRef} args={[0xbfd8ff, 0x1b1f2a, 0.35]} />
       {/* Disable CameraController when MMD test is active to allow MMD camera takeover */}
       {mmdTest.active ? null : <CameraController playerRef={playerRef} />}
       <WeatherSystem />
@@ -281,7 +292,11 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
             <SoccerField position={[-50, 0.03, 0]} />
             <SolarSystem />
             <Garden position={[-2, 0.1, 10]} scale={1.6} rotation-y={Math.PI} />
-            <Environment files="/hdri/dikhololo_night_1k.hdr" intensity={0.1} background={false} />
+            <Environment
+              files="/hdri/dikhololo_night_1k.hdr"
+              intensity={renderingSettings?.environmentIntensity ?? 0.35}
+              background={false}
+            />
             <LivingRoomWithTV position={[15, -0.05, -10]} />
             <AnimeClassroom position={[40, 0.5, 20]} scale={0.5} />
             <StarryNight scale={2} position={[20, -2, 10]} rotation-y={-Math.PI / 2} />
@@ -302,12 +317,6 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
 
             {/* 厨房 - 放置在南川房间主厨区域 */}
             <Kitchen position={[60.16, 0, -11.15]} scale={0.042} rotation={[0, -Math.PI / 2, 0]} />
-
-            {/* 夜晚泳池 - 放置在场景中 */}
-            <NightPool position={[85, 0, -23.5]} scale={0.01} rotation={[0, 0, 0]} />
-
-            {/* 种植园 - 放置在场景中 */}
-            <Plantation position={[85, 0, 1]} scale={0.002} rotation={[0, -Math.PI / 2, 0]} />
 
             {/* MMD Test Mount */}
             {mmdTest.active && mmdTest.config && (

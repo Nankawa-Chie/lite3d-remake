@@ -467,7 +467,8 @@ function App() {
         <PerfHeadless />
         {/* 主场景视图 */}
         <View index={1} track={mainViewRef}>
-          <ambientLight intensity={0.2} />
+          {/* 用更“电影”的方式：降低全局 Ambient，主要靠太阳光 + 天空半球光来出层次 */}
+          <ambientLight intensity={0.05} />
 
           {currentScene === "game" && (
             <Physics gravity={[0, -9.82, 0]}>

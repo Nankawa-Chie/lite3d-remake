@@ -1,0 +1,21 @@
+[Info]
+Version = 3
+
+[Effect]
+Obj = none
+Obj[0] = textures\pants.fx
+Obj[1] = textures\coat.fx
+Obj[2] = textures\eyes.fx
+Obj[3] = textures\hands.fx
+Obj[4] = textures\face.fx
+Obj[5] = textures\pants.fx
+Obj[6] = textures\teeth.fx
+Obj[7] = textures\undershirt.fx
+Obj[8] = textures\lashes.fx
+Obj[9] = textures\default.fx
+Obj[10] = textures\default.fx
+Obj[11] = textures\default.fx
+Obj[12] = textures\brows.fx
+Obj[13] = textures\hair.fx
+Obj[14] = textures\hair.fx
+

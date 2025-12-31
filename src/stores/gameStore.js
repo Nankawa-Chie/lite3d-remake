@@ -1,15 +1,49 @@
 import {create} from "zustand";
 
+// === High-frequency time (non-reactive) ===
+// currentTimeInternal is advanced every frame WITHOUT triggering zustand setState.
+// We only sync to zustand state at a low frequency for UI/debug display.
+let currentTimeInternal = 12;
+let lastUiSyncMs = 0;
+const UI_TIME_SYNC_INTERVAL_MS = 250; // 4Hz
+
 /**
  * @description 遊戲全局狀態管理 Store
  * 使用 Zustand 來管理高頻更新的狀態，避免不必要的組件重新渲染
  */
 const useGameStore = create((set, get) => ({
   // === 時間系統 ===
+  // 注意：currentTime 用于 UI/调试（低频同步），避免每帧 setState 造成全场景重渲染。
   time: {
-    currentTime: 12, // 當前時間 (0-24小時制)
+    currentTime: 12, // UI/Debug time (0-24)
     timeSpeed: 0.1, // 時間流逝速度
   },
+
+  // High-frequency time API (non-reactive)
+  getTimeInternal: () => currentTimeInternal,
+
+  /**
+   * 每帧推进内部时间，但只低频同步到 zustand state。
+   * @param {number} deltaSeconds
+   */
+  advanceTime: (deltaSeconds) => {
+    const {timeSpeed} = get().time;
+    if (!timeSpeed || timeSpeed <= 0) return;
+
+    // 原逻辑：delta * timeSpeed * 0.1，再乘 24
+    const timeIncrement = deltaSeconds * timeSpeed * 0.1;
+    currentTimeInternal = (currentTimeInternal + timeIncrement * 24) % 24;
+
+    const now = performance.now();
+    if (now - lastUiSyncMs >= UI_TIME_SYNC_INTERVAL_MS) {
+      lastUiSyncMs = now;
+      // 同步到 state（会触发订阅者重渲染，但频率很低）
+      set((state) => ({
+        time: {...state.time, currentTime: currentTimeInternal},
+      }));
+    }
+  },
+
 
   // === 天氣系統 ===
   weather: {
@@ -75,28 +109,28 @@ const useGameStore = create((set, get) => ({
       toneMapping: "ACESFilmic", // None, Linear, Reinhard, Cineon, ACESFilmic
       toneMappingExposure: 1.0,
 
-      // 分辨率/抗锯齿\n      dprMin: 1,\n      dprMax: 2,\n      msaaSamples: 0, // 0=disabled, 2/4/8 for WebGL2 multisampling in EffectComposer\n\n      // New anti-aliasing controls\n      enableFXAA: 'auto', // 'auto' | 'on' | 'off'\n      bloomMode: 'global', // 'global' | 'layer' (selective bloom via layers)\n      qualityPreset: 'balanced', // 'performance' | 'balanced' | 'quality'\n\n      // 后处理效果
-      enablePostProcessing: false,
-      enableBloom: false,
-      enableSSAO: false,
+      // 分辨率/抗锯齿\n      dprMin: 1,\n      dprMax: 2,\n      msaaSamples: 0, // 0=disabled, 2/4/8 for WebGL2 multisampling in EffectComposer\n\n      // New anti-aliasing controls\n      enableFXAA: 'auto', // 'auto' | 'on' | 'off'\n      bloomMode: 'global', // 'global' | 'layer' (selective bloom via layers)\n      qualityPreset: 'balanced', // 'performance' | 'balanced' | 'quality'\n\n      // 后处理效果（Balanced Cinematic 默认：克制、自然、可控）
+      enablePostProcessing: true,
+      enableBloom: true,
+      enableSSAO: true,
       enableOutline: false,
       enableDOF: false,
       enableMotionBlur: false,
       enableChromaticAberration: false,
-      enableVignette: false,
+      enableVignette: true,
       enableNoise: false,
 
-      // Bloom 设置
-      bloomIntensity: 1.5,
-      bloomLuminanceThreshold: 0.9,
-      bloomLuminanceSmoothing: 0.025,
-      bloomRadius: 0.85,
+      // Bloom 设置（默认非常克制，避免“假”）
+      bloomIntensity: 0.35,
+      bloomLuminanceThreshold: 1.05,
+      bloomLuminanceSmoothing: 0.06,
+      bloomRadius: 0.55,
 
-      // SSAO 设置
-      ssaoIntensity: 0.5,
-      ssaoRadius: 0.2,
-      ssaoBias: 0.025,
-      ssaoSamples: 16,
+      // SSAO 设置（默认轻量，只做接触阴影）
+      ssaoIntensity: 0.25,
+      ssaoRadius: 0.12,
+      ssaoBias: 0.02,
+      ssaoSamples: 8,
       ssaoHalfRes: true,
       ssaoBilateral: true,
 
@@ -117,18 +151,53 @@ const useGameStore = create((set, get) => ({
       // Outline 设置
       outlineMode: 'standard', // 'standard' | 'sobel' | 'hybrid'
 
-      // 色彩调整
-      brightness: 0,
-      contrast: 0,
-      saturation: 0,
+      // 色彩调整（默认只做一点点对比度/饱和度，避免“滤镜感”）
+      brightness: -0.02,
+      contrast: 0.12,
+      saturation: 0.02,
       hue: 0,
 
-      // 环境设置
-      enableFog: false,
-      fogNear: 1,
-      fogFar: 100,
-      fogColor: "#ffffff",
-      fogDensity: 0.00025,
+      // Vignette 参数（避免固定写死在组件里导致“过强假片感”）
+      vignetteOffset: 0.2,
+      vignetteDarkness: 0.35,
+
+      // Toon-ish（Soft Toon，白名单材质启用；默认尽量克制）
+      enableToonishShading: true,
+      toonRampSteps: 4,
+      toonRampSmoothness: 0.55,
+      toonRimStrength: 0.35,
+      toonRimPower: 2.5,
+      toonRimColor: "#dbe9ff",
+      toonShadowLift: 0.08,
+
+      // 环境（HDRI/雾）
+      environmentIntensity: 0.35,
+
+      // 视距/空气透视（阶段4C：200~500 视距范围的沉浸感）
+      viewDistance: 350,
+      hazePreset: 'balanced', // 'performance' | 'balanced' | 'quality'
+
+      // 近/远段的空气透视控制（FogRenderer 会用这些值动态生成 fog）
+      hazeNear: 20,
+      hazeFar: 350,
+      hazeDensityDay: 0.0012,
+      hazeDensityNight: 0.0028,
+      hazeColorDay: "#b8c7d6",
+      hazeColorNight: "#0b1320",
+
+      // 地形远景降频/降噪（不增加 sampler）
+      terrainDistanceFadeStart: 120,
+      terrainDistanceFadeEnd: 350,
+      terrainFarTexScale: 0.35, // 远处纹理频率倍率（越小越大块、更干净）
+      terrainFarNormalScale: 0.35, // 远处法线强度倍率（减少闪烁）
+      terrainFarRoughnessBoost: 0.35, // 远处额外粗糙度（减少高光噪点）
+
+      enableFog: true,
+      fogType: 'exp2', // 'linear' | 'exp2'
+      fogNear: 10,
+      fogFar: 180,
+      fogColor: "#b8c7d6",
+      fogDensity: 0.0015,
     },
     physics: {
       // 物理调试设置
@@ -159,10 +228,13 @@ const useGameStore = create((set, get) => ({
    * @description 更新時間流逝 (高頻調用，不會觸發組件重新渲染)
    * @param {number} newTime - 新的時間值
    */
-  updateTime: (newTime) =>
+  // 兼容旧 API：updateTime 仍可用，但会同时写内部时间（不建议每帧调用）
+  updateTime: (newTime) => {
+    currentTimeInternal = ((newTime % 24) + 24) % 24;
     set((state) => ({
-      time: {...state.time, currentTime: newTime},
-    })),
+      time: {...state.time, currentTime: currentTimeInternal},
+    }));
+  },
 
   /**
    * @description 設置時間和速度

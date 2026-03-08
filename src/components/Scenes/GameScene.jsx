@@ -8,9 +8,12 @@ import CameraController from "../Camera/CameraController";
 import PhysicsDebugRenderer from "../Debug/PhysicsDebugRenderer";
 import PostProcessingRenderer from "../Rendering/PostProcessingRenderer";
 import FogRenderer from "../Rendering/FogRenderer";
+import CenterAimRaycast from "../Systems/CenterAimRaycast";
 import useGameStore from "../../stores/gameStore";
 
 import BlendedTerrain from "../World/BlendedTerrain";
+import InfiniteTerrainManager from "../World/InfiniteTerrainManager";
+import CloudDome from "../World/CloudDome";
 import WeatherSystem from "../Systems/WeatherSystem";
 import SoccerField from "../World/SoccerField";
 import SolarSystem from "../World/SolarSystem";
@@ -25,6 +28,8 @@ import {HouseModel} from "../World/NankawaRoom"; // 南川白模房间
 import GrandPiano from "../World/GrandPiano"; // 大理石钢琴
 import GrayCouch from "../World/GrayCouch"; // 灰色L型沙发
 import Kitchen from "../World/Kitchen"; // 厨房
+import VrchatMusicPlayer from "../World/VrchatMusicPlayer";
+import DistanceCull from "../Systems/DistanceCull";
 
 // ... (LoggedPlayer 方便調試)
 const LoggedMilkPlayer = React.forwardRef((props, ref) => {
@@ -97,11 +102,24 @@ const PlayerRenderer = React.forwardRef(({selectedCharacter, ...props}, ref) => 
  * @param {React.ReactNode} props.children - 在 World 加载完成后需要渲染的子组件。
  * @returns {JSX.Element}
  */
-function World({children, terrainSettings}) {
+function World({children, terrainSettings, playerRef}) {
   console.log("%cWorld component is re-rendering", "color: blue;"); // 在 World 中添加日誌
   return (
     <>
-      <BlendedTerrain position={[0, 0, 0]} terrainParams={terrainSettings} />
+      {/* Original single terrain (kept for reference, disabled) */}
+      {/* <BlendedTerrain position={[0, 0, 0]} terrainParams={terrainSettings} /> */}
+
+      {/* Infinite chunked terrain */}
+      <InfiniteTerrainManager
+        playerRef={playerRef}
+        chunkSize={128}
+        viewRadius={3}
+        chunkResolution={64}
+        maxHeight={32}
+        noiseSeed={42}
+        flatZoneRadius={128}
+        terrainParams={terrainSettings}
+      />
 
       {/* Render children only after the primary world components are loaded */}
       {children}
@@ -164,12 +182,26 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
     // Update Sky and Sun
     if (skyRef.current) {
       skyRef.current.material.uniforms.sunPosition.value.set(sunX, sunY, sunZ);
+
+      // Dynamic sky parameters for richer dawn/dusk colors
+      const uniforms = skyRef.current.material.uniforms;
+      const dayFactor = THREE.MathUtils.smoothstep(sunY, -0.15, 0.35);
+      const dawnFactor = 1 - Math.abs(sunY) * 3; // Peak at horizon (sunY ≈ 0)
+      const dawnBoost = Math.max(0, dawnFactor);
+
+      // Turbidity: low during day for clean blue sky, higher at dawn/dusk for warm haze
+      uniforms.turbidity.value = THREE.MathUtils.lerp(1.5, 3.5, dayFactor) + dawnBoost * 6;
+      // Rayleigh: higher = more blue scatter; slightly reduce at dawn for warmer tones
+      uniforms.rayleigh.value = THREE.MathUtils.lerp(0.8, 4.0, dayFactor) - dawnBoost * 1.2;
+      // Mie: more forward scattering at dawn = bigger sun glow
+      uniforms.mieCoefficient.value = 0.003 + dawnBoost * 0.02;
+      uniforms.mieDirectionalG.value = THREE.MathUtils.lerp(0.75, 0.99, dawnBoost);
     }
     if (sunRef.current) {
       sunRef.current.position.set(
         sunX * 50,
         Math.max(sunY * 50, -10), // Ensure sun doesn't go too far below horizon
-        sunZ * 50
+        sunZ * 50,
       );
 
       // Adjust light intensity based on time and weather
@@ -195,25 +227,28 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
 
       // Adjust light color for different weather and time of day
       const isDay = sunY > -0.1;
+      const dawnDuskFactor = Math.max(0, 1 - Math.abs(sunY) * 3);
+
       if (isDay) {
-        let lightColor = 0xffffff;
+        let lightColor;
         switch (currentWeather.type) {
           case "stormy":
-            lightColor = 0x444466;
+            lightColor = new THREE.Color(0x444466);
             break;
           case "cloudy":
           case "foggy":
-            lightColor = 0xccccdd;
+            lightColor = new THREE.Color(0xccccdd);
             break;
           case "snowy":
-            lightColor = 0xeeeeff;
+            lightColor = new THREE.Color(0xeeeeff);
             break;
           default:
-            lightColor = 0xffffff;
+            // Warm golden light at dawn/dusk, white at midday
+            lightColor = new THREE.Color(0xffffff).lerp(new THREE.Color(0xffaa55), dawnDuskFactor);
         }
-        sunRef.current.color.setHex(lightColor);
+        sunRef.current.color.copy(lightColor);
       } else {
-        // Night time light color
+        // Night time: deep blue moonlight
         sunRef.current.color.setHex(0x2a4b9a);
       }
     }
@@ -221,21 +256,33 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
     // Hemisphere fill light: drive day/night ambiance without blowing out exposure
     if (hemiRef.current) {
       const dayFactor = THREE.MathUtils.smoothstep(sunY, -0.15, 0.35); // 0=night, 1=day
+      const dawnDuskFactor = Math.max(0, 1 - Math.abs(sunY) * 3);
       const hemiIntensity = THREE.MathUtils.lerp(0.18, 0.45, dayFactor);
       hemiRef.current.intensity = hemiIntensity;
 
-      // Slightly bluer at night; slightly warmer at day
+      // Sky color: bluer at midday, warm at dawn/dusk, dark at night
       const skyDay = new THREE.Color(0xbfd8ff);
+      const skyDawn = new THREE.Color(0xffb87a); // Warm orange sky at horizon
       const skyNight = new THREE.Color(0x2a3550);
+
+      const skyTarget = new THREE.Color().copy(skyDay).lerp(skyDawn, dawnDuskFactor);
+      hemiRef.current.color.copy(skyNight).lerp(skyTarget, dayFactor);
+
+      // Ground color: warmer at dawn/dusk
       const groundDay = new THREE.Color(0x6b6a64);
+      const groundDawn = new THREE.Color(0x8b6040);
       const groundNight = new THREE.Color(0x0b0d12);
-      hemiRef.current.color.copy(skyNight).lerp(skyDay, dayFactor);
-      hemiRef.current.groundColor.copy(groundNight).lerp(groundDay, dayFactor);
+
+      const groundTarget = new THREE.Color().copy(groundDay).lerp(groundDawn, dawnDuskFactor);
+      hemiRef.current.groundColor.copy(groundNight).lerp(groundTarget, dayFactor);
     }
   });
 
   return (
     <>
+      {/* Forces center-aim raycast while pointer-lock is active */}
+      <CenterAimRaycast />
+
       {/* --- Environment and Systems --- */}
       <Sky
         ref={skyRef}
@@ -243,10 +290,20 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
         sunPosition={[0, 1, 0]} // Initial position, will be updated in useFrame
         inclination={0}
         azimuth={0.25}
-        turbidity={10}
-        rayleigh={3}
-        mieCoefficient={0.005}
-        mieDirectionalG={0.7}
+        turbidity={3}
+        rayleigh={4}
+        mieCoefficient={0.003}
+        mieDirectionalG={0.75}
+      />
+
+      {/* Procedural cloud layer (slowly rotating) */}
+      <CloudDome
+        radius={480}
+        cloudOpacity={0.5}
+        cloudCoverage={0.4}
+        cloudSharpness={2.5}
+        rotationSpeed={0.00006}
+        tintColor="#f8fbff"
       />
       <directionalLight
         ref={sunRef}
@@ -265,6 +322,7 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
 
       {/* 天空半球光：提供“可控的环境补光”，避免夜晚死黑、白天更有层次 */}
       <hemisphereLight ref={hemiRef} args={[0xbfd8ff, 0x1b1f2a, 0.35]} />
+
       {/* Disable CameraController when MMD test is active to allow MMD camera takeover */}
       {mmdTest.active ? null : <CameraController playerRef={playerRef} />}
       <WeatherSystem />
@@ -282,7 +340,7 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
       <Suspense fallback={null}>
         {/* Stage 1: Load the essential world (terrain, etc.) */}
 
-        <World terrainSettings={terrainSettings}>
+        <World terrainSettings={terrainSettings} playerRef={playerRef}>
           {/* Stage 2: After the world is ready, load all other assets */}
           <Suspense fallback={null}>
             <PlayerRenderer selectedCharacter={selectedCharacter} ref={playerRef} />
@@ -297,26 +355,45 @@ function GameScene({playerRef, physicsDebugSettings, renderingSettings}) {
               intensity={renderingSettings?.environmentIntensity ?? 0.35}
               background={false}
             />
-            <LivingRoomWithTV position={[15, -0.05, -10]} />
-            <AnimeClassroom position={[40, 0.5, 20]} scale={0.5} />
-            <StarryNight scale={2} position={[20, -2, 10]} rotation-y={-Math.PI / 2} />
+            {/* --- Distance-culled high-poly models --- */}
+
+            {/* LivingRoomWithTV area (center-left) */}
+            <DistanceCull origin={[15, 0, -10]} maxDistance={60} playerRef={playerRef}>
+              <LivingRoomWithTV position={[15, -0.05, -10]} />
+            </DistanceCull>
+
+            <DistanceCull origin={[40, 0, 20]} maxDistance={50} playerRef={playerRef}>
+              <AnimeClassroom position={[40, 0.5, 20]} scale={0.5} />
+            </DistanceCull>
+
+            <DistanceCull origin={[20, 0, 10]} maxDistance={50} playerRef={playerRef}>
+              <StarryNight scale={2} position={[20, -2, 10]} rotation-y={-Math.PI / 2} />
+            </DistanceCull>
 
             {/* MC护甲伤害抵消机制3D图表 */}
-            <Chart3D position={[-5.8, 2.1, -10]} scale={0.4} rotation={[0, Math.PI / 2, 0]} />
+            <DistanceCull origin={[-5.8, 0, -10]} maxDistance={40} playerRef={playerRef}>
+              <Chart3D position={[-5.8, 2.1, -10]} scale={0.4} rotation={[0, Math.PI / 2, 0]} />
+            </DistanceCull>
 
-            {/* 南川白模房间 - Nankawa Room */}
-            <group position={[25, 0.02, -30]}>
-              <HouseModel />
-            </group>
+            {/* 南川白模房间 + 内部家具 (grouped together) */}
+            <DistanceCull origin={[40, 0, -25]} maxDistance={70} playerRef={playerRef}>
+              {/* 南川白模房间 - Nankawa Room */}
+              <group position={[25, 0.02, -30]}>
+                <HouseModel playerRef={playerRef} />
+              </group>
 
-            {/* 大理石钢琴 - 放置在场景中 */}
-            <GrandPiano position={[42, 0, -12.5]} scale={0.0014} rotation={[0, Math.PI / 2, 0]} />
+              {/* 大理石钢琴 - 放置在场景中 */}
+              <GrandPiano position={[42, 0, -12.5]} scale={0.0014} rotation={[0, Math.PI / 2, 0]} />
 
-            {/* 灰色L型沙发 - 放置在南川房间主厅 */}
-            <GrayCouch position={[44, 0, -26]} scale={2} rotation={[0, -Math.PI / 2, 0]} />
+              {/* 灰色L型沙发 - 放置在南川房间主厅 */}
+              <GrayCouch position={[43.1, 0, -28.45]} scale={1.85} rotation={[0, 0, 0]} />
 
-            {/* 厨房 - 放置在南川房间主厨区域 */}
-            <Kitchen position={[60.16, 0, -11.15]} scale={0.042} rotation={[0, -Math.PI / 2, 0]} />
+              {/* VRChat-like Music Player Panel (near couch, left side) */}
+              <VrchatMusicPlayer position={[46.0, 1.35, -29.8]} rotation={[0, 0, 0]} scale={1} />
+
+              {/* 厨房 - 放置在南川房间主厨区域 */}
+              <Kitchen position={[60.16, 0, -11.15]} scale={0.042} rotation={[0, -Math.PI / 2, 0]} />
+            </DistanceCull>
 
             {/* MMD Test Mount */}
             {mmdTest.active && mmdTest.config && (

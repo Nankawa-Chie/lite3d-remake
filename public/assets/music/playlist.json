@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "title": "Nankawa Playlist",
+  "tracks": [
+    {"title": "03 - Daliy", "url": "/assets/music/3-Daliy.wav"},
+    {"title": "17 - Love", "url": "/assets/music/17-Love.wav"},
+    {"title": "19 - Haven", "url": "/assets/music/19-Haven.wav"},
+    {"title": "21 - Confuse", "url": "/assets/music/21-Confuse.wav"},
+    {"title": "23 - Father", "url": "/assets/music/23-Father.wav"},
+    {"title": "24 - Life", "url": "/assets/music/24-Life.wav"},
+    {"title": "30 - Chage", "url": "/assets/music/30-Chage.wav"},
+    {"title": "33 - Me", "url": "/assets/music/33-Me.wav"}
+  ]
+}

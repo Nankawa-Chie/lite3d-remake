@@ -15,6 +15,10 @@ const MODEL_CONFIG = {
   modelType: "vrm", // 'vrm' 或 'glb'
   modelPath: "/assets/models/Manuka_mix-1.vrm", // VRM模型路径
   animationPath: "/assets/models/Manuka.glb", // GLB动画文件路径（仅VRM模式需要）
+  // 视觉模型朝向补偿（只影响渲染，不影响角色移动/相机逻辑）
+  // - 若不填（null/undefined），将根据 VRM 版本自动推断：VRM0 => Math.PI，VRM1 => 0
+  // - 若你发现仍有 90° 偏差，可手动改为 Math.PI / 2 或 -Math.PI / 2
+  modelYawOffset: undefined,
 };
 
 // 定义玩家所有可能的状态，便于管理和切换
@@ -114,7 +118,12 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
   // VRM模型和动画数据的引用
   const vrmRef = useRef(null);
   const modelSceneRef = useRef(null); // 统一的场景引用
-  const animationsRef = useRef([]); // 统一的动画数组引用
+
+  // 动画 clips：用 state 确保 useAnimations 能在 clips 变化后更新（ref 变更不会触发重算）
+  const [animationClips, setAnimationClips] = useState([]);
+
+  // 视觉层朝向补偿（只旋转模型本体，不改变 groupRef 的 facing/移动方向）
+  const [modelYawOffset, setModelYawOffset] = useState(0);
 
   // 根据配置加载模型和动画
   const [modelLoaded, setModelLoaded] = useState(false);
@@ -124,7 +133,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
   const glbData = MODEL_CONFIG.modelType === "glb" ? useGLTF("/assets/models/Manuka_2.glb") : null;
 
   // 使用useAnimations管理动画
-  const {actions, mixer} = useAnimations(animationsRef.current, modelRef);
+  const {actions, mixer} = useAnimations(animationClips, modelRef);
   const currentAction = useRef("idle");
 
   // --- Input and Movement ---
@@ -275,12 +284,12 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
         currentVerticalOffset.current = THREE.MathUtils.lerp(
           currentVerticalOffset.current,
           targetVerticalOffset,
-          offsetSmoothingFactor
+          offsetSmoothingFactor,
         );
         currentForwardOffset.current = THREE.MathUtils.lerp(
           currentForwardOffset.current,
           targetForwardOffset,
-          offsetSmoothingFactor
+          offsetSmoothingFactor,
         );
 
         // 应用平滑后的偏移
@@ -404,6 +413,11 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
   // ============================================================================
   // 临时存储原始动画数据（等待VRM模型加载完成后再处理）
   const rawAnimationsRef = useRef(null);
+  const rawAnimationSceneRef = useRef(null); // 动画 GLB 的 scene（用于读取 Mixamo 骨骼 rest pose）
+
+  // 开关：是否启用 Mixamo → VRM humanoid 的 retarget（用于修复扭曲）
+  // 默认关闭：先保证 VRM1 + 对应 GLB 动画维持原有可用行为
+  const enableMixamoRetarget = false;
 
   useEffect(() => {
     if (MODEL_CONFIG.modelType === "vrm") {
@@ -422,8 +436,19 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
             setModelLoaded(true);
 
             // 打印VRM信息
-            console.log("VRM版本:", vrm.meta?.metaVersion || "unknown");
+            const metaVersion = vrm.meta?.metaVersion || "unknown";
+            console.log("VRM版本:", metaVersion);
             console.log("VRM SpringBone:", vrm.springBoneManager ? "已启用" : "未启用");
+
+            // 自动推断视觉层朝向补偿：很多 VRM0 资产会出现正面与项目约定 forward 相反的问题
+            if (MODEL_CONFIG.modelYawOffset !== null && MODEL_CONFIG.modelYawOffset !== undefined) {
+              setModelYawOffset(MODEL_CONFIG.modelYawOffset);
+              console.log("ManukaPlayer modelYawOffset(手动):", MODEL_CONFIG.modelYawOffset);
+            } else {
+              const inferred = String(metaVersion).startsWith("0") ? Math.PI : 0;
+              setModelYawOffset(inferred);
+              console.log("ManukaPlayer modelYawOffset(自动):", inferred, "(metaVersion:", metaVersion, ")");
+            }
 
             // 打印VRM表情信息
             if (vrm.expressionManager) {
@@ -467,7 +492,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
         },
         (error) => {
           console.error("✗ VRM模型加载失败:", error);
-        }
+        },
       );
 
       // VRM模式：加载GLB动画文件
@@ -478,25 +503,26 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
           console.log("✓ 动画文件加载成功:", MODEL_CONFIG.animationPath);
           console.log(
             `找到 ${gltf.animations.length} 个动画:`,
-            gltf.animations.map((a) => a.name)
+            gltf.animations.map((a) => a.name),
           );
 
           // 动画已在 Blender 中修正起始帧为0，直接使用原生循环即可
 
-          // 暂存原始动画数据
+          // 暂存原始动画数据 + scene（用于读取 Mixamo rest pose）
           rawAnimationsRef.current = gltf.animations;
+          rawAnimationSceneRef.current = gltf.scene;
           setAnimationsLoaded(true);
         },
         undefined,
         (error) => {
           console.error("✗ 动画文件加载失败:", error);
-        }
+        },
       );
     } else {
       // GLB模式：使用已通过useGLTF加载的数据（向下兼容）
       if (glbData) {
         modelSceneRef.current = glbData.scene;
-        animationsRef.current = glbData.animations;
+        setAnimationClips(glbData.animations || []);
         setModelLoaded(true);
         setAnimationsLoaded(true);
         console.log("✓ GLB模型加载成功（兼容模式）");
@@ -504,44 +530,216 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
     }
   }, [glbData]);
 
-  // VRM模式：当模型和动画都加载完成后，进行动画重定向
+  // VRM模式：当模型和动画都加载完成后，进行动画重定向/重定向（Mixamo → VRM Humanoid）
   useEffect(() => {
-    if (MODEL_CONFIG.modelType === "vrm" && modelLoaded && animationsLoaded && rawAnimationsRef.current && vrmRef.current) {
-      console.log("开始动画重定向...");
+    if (!(MODEL_CONFIG.modelType === "vrm" && modelLoaded && animationsLoaded && rawAnimationsRef.current && vrmRef.current))
+      return;
 
-      // 重定向动画：移除VRM模型中不存在的轨道，避免警告
-      const cleanedAnimations = rawAnimationsRef.current.map((animation) => {
-        const cleanedTracks = animation.tracks.filter((track) => {
-          // 提取轨道的骨骼名称
-          // 轨道名称格式: "BoneName.property" 或 "Parent.BoneName.property"
-          // 需要提取最后一个属性之前的所有部分作为骨骼名称
-          const parts = track.name.split(".");
-          const property = parts[parts.length - 1]; // 最后一部分是属性（position/quaternion/scale）
-          const trackName = parts.slice(0, -1).join("."); // 移除属性，重新组合骨骼名称
+    const vrm = vrmRef.current;
+    const animScene = rawAnimationSceneRef.current;
+    const sourceClips = rawAnimationsRef.current;
 
-          // 检查VRM模型中是否存在该骨骼
-          let boneExists = false;
-          vrmRef.current.scene.traverse((node) => {
-            if (node.name === trackName) {
-              boneExists = true;
-            }
-          });
+    const normalizeBoneName = (name) => {
+      if (!name) return "";
+      return String(name)
+        .replace(/^.*:/, "") // remove namespace like mixamorig:
+        .replace(/^mixamorig/i, "") // remove prefix mixamorig
+        .replace(/^_+/, "")
+        .trim();
+    };
 
-          return boneExists;
-        });
+    const getVrmHumanoidBoneNode = (boneName) => {
+      // Try several APIs depending on three-vrm version
+      const h = vrm.humanoid;
+      if (!h) return null;
+      if (typeof h.getRawBoneNode === "function") return h.getRawBoneNode(boneName);
+      if (typeof h.getBoneNode === "function") return h.getBoneNode(boneName);
+      if (typeof h.getNormalizedBoneNode === "function") return h.getNormalizedBoneNode(boneName);
+      return null;
+    };
 
-        // 创建新的动画剪辑，仅包含有效轨道
-        return new THREE.AnimationClip(animation.name, animation.duration, cleanedTracks);
+    const buildSourceBoneMap = () => {
+      const map = new Map();
+      if (!animScene) return map;
+      animScene.traverse((n) => {
+        if (n && (n.isBone || n.type === "Bone")) {
+          const key = normalizeBoneName(n.name);
+          if (key && !map.has(key)) map.set(key, n);
+        }
+      });
+      return map;
+    };
+
+    // Mixamo → VRM Humanoid mapping (best-effort). Keys are VRM humanoid bone names.
+    const VRM_TO_MIXAMO = {
+      hips: ["Hips"],
+      spine: ["Spine"],
+      chest: ["Spine1", "Spine_1", "Spine2"],
+      upperChest: ["Spine2", "Spine_2", "Spine3"],
+      neck: ["Neck"],
+      head: ["Head"],
+
+      leftShoulder: ["LeftShoulder"],
+      leftUpperArm: ["LeftArm"],
+      leftLowerArm: ["LeftForeArm"],
+      leftHand: ["LeftHand"],
+
+      rightShoulder: ["RightShoulder"],
+      rightUpperArm: ["RightArm"],
+      rightLowerArm: ["RightForeArm"],
+      rightHand: ["RightHand"],
+
+      leftUpperLeg: ["LeftUpLeg"],
+      leftLowerLeg: ["LeftLeg"],
+      leftFoot: ["LeftFoot"],
+      leftToes: ["LeftToeBase"],
+
+      rightUpperLeg: ["RightUpLeg"],
+      rightLowerLeg: ["RightLeg"],
+      rightFoot: ["RightFoot"],
+      rightToes: ["RightToeBase"],
+    };
+
+    const retargetClipMixamoToVrm = (clip) => {
+      const sourceBoneMap = buildSourceBoneMap();
+
+      const tracksOut = [];
+      let inTracks = clip.tracks.length;
+      let outTracks = 0;
+      let mappedTracks = 0;
+
+      // cache correction quaternions per vrm humanoid bone
+      const qCorrCache = new Map();
+
+      const getCorrection = (humanoidBoneName, sourceBoneNode, targetBoneNode) => {
+        if (qCorrCache.has(humanoidBoneName)) return qCorrCache.get(humanoidBoneName);
+        // Local rest rotations
+        const qSourceRest = new THREE.Quaternion().copy(sourceBoneNode.quaternion);
+        const qTargetRest = new THREE.Quaternion().copy(targetBoneNode.quaternion);
+        const qCorr = new THREE.Quaternion().copy(qTargetRest).multiply(qSourceRest.invert());
+        qCorrCache.set(humanoidBoneName, qCorr);
+        return qCorr;
+      };
+
+      // For each humanoid bone we attempt to find matching source bone and then rewrite relevant tracks
+      const humanoidTargets = new Map();
+      Object.keys(VRM_TO_MIXAMO).forEach((humanoidName) => {
+        const targetNode = getVrmHumanoidBoneNode(humanoidName);
+        if (!targetNode) return;
+        const candidates = VRM_TO_MIXAMO[humanoidName] || [];
+        let sourceNode = null;
+        for (const c of candidates) {
+          const key = normalizeBoneName(c);
+          if (sourceBoneMap.has(key)) {
+            sourceNode = sourceBoneMap.get(key);
+            break;
+          }
+        }
+        if (sourceNode) humanoidTargets.set(humanoidName, {sourceNode, targetNode});
       });
 
-      const totalTracks = rawAnimationsRef.current.reduce((sum, anim) => sum + anim.tracks.length, 0);
-      const cleanedTracks = cleanedAnimations.reduce((sum, anim) => sum + anim.tracks.length, 0);
-      console.log(
-        `✓ 动画重定向完成：${totalTracks} 轨道 -> ${cleanedTracks} 轨道（过滤了 ${totalTracks - cleanedTracks} 个不兼容轨道）`
-      );
+      // Helper: find which humanoid bone a track belongs to, by matching source bone names
+      const sourceNameToHumanoid = new Map();
+      humanoidTargets.forEach((v, humanoidName) => {
+        sourceNameToHumanoid.set(normalizeBoneName(v.sourceNode.name), humanoidName);
+      });
 
-      animationsRef.current = cleanedAnimations;
+      for (const track of clip.tracks) {
+        const parts = track.name.split(".");
+        const prop = parts[parts.length - 1];
+        const nodePath = parts.slice(0, -1).join(".");
+        const nodeName = normalizeBoneName(nodePath.split(".").pop());
+
+        const humanoidName = sourceNameToHumanoid.get(nodeName);
+        if (!humanoidName) continue;
+
+        const pair = humanoidTargets.get(humanoidName);
+        if (!pair) continue;
+        const {sourceNode, targetNode} = pair;
+
+        if (prop === "quaternion" && track instanceof THREE.QuaternionKeyframeTrack) {
+          const qCorr = getCorrection(humanoidName, sourceNode, targetNode);
+          const values = track.values;
+          const out = new Float32Array(values.length);
+          const q = new THREE.Quaternion();
+          const qNew = new THREE.Quaternion();
+          for (let i = 0; i < values.length; i += 4) {
+            q.set(values[i], values[i + 1], values[i + 2], values[i + 3]);
+            qNew.copy(qCorr).multiply(q);
+            out[i] = qNew.x;
+            out[i + 1] = qNew.y;
+            out[i + 2] = qNew.z;
+            out[i + 3] = qNew.w;
+          }
+
+          tracksOut.push(new THREE.QuaternionKeyframeTrack(`${targetNode.name}.quaternion`, track.times, out));
+          outTracks++;
+          mappedTracks++;
+        } else if (prop === "position" && track instanceof THREE.VectorKeyframeTrack) {
+          // Inplace 动画一般不需要水平 root motion。为避免扭曲，只允许 hips 的 Y（上下）位移。
+          if (humanoidName !== "hips") continue;
+          const values = track.values;
+          const out = new Float32Array(values.length);
+          for (let i = 0; i < values.length; i += 3) {
+            out[i] = 0; // x
+            out[i + 1] = values[i + 1]; // y
+            out[i + 2] = 0; // z
+          }
+          tracksOut.push(new THREE.VectorKeyframeTrack(`${targetNode.name}.position`, track.times, out));
+          outTracks++;
+          mappedTracks++;
+        }
+      }
+
+      // 若没有成功映射任何轨道，返回 null 以便回退
+      if (mappedTracks === 0) return null;
+
+      console.log(`[MixamoRetarget] clip "${clip.name}": tracks ${inTracks} -> ${outTracks} (mapped ${mappedTracks})`);
+
+      return new THREE.AnimationClip(clip.name, clip.duration, tracksOut);
+    };
+
+    console.log("MixamoRetarget 开关:", enableMixamoRetarget ? "ON" : "OFF");
+
+    if (enableMixamoRetarget && animScene && vrm.humanoid) {
+      console.log("开始 Mixamo → VRM Humanoid 动画 retarget...");
+      const retargeted = [];
+      for (const c of sourceClips) {
+        const clipOut = retargetClipMixamoToVrm(c);
+        if (clipOut) retargeted.push(clipOut);
+      }
+
+      if (retargeted.length > 0) {
+        console.log(`✓ Mixamo retarget 完成：${sourceClips.length} clips -> ${retargeted.length} clips`);
+        setAnimationClips(retargeted);
+        return;
+      }
+
+      console.warn("[MixamoRetarget] 没有任何 clip 被成功映射，回退到旧的 cleanedTracks 逻辑");
     }
+
+    // 回退方案：仅移除 VRM 模型中不存在的轨道，避免警告（不保证不扭曲）
+    console.log("开始动画轨道清理（fallback）...");
+    const cleanedAnimations = sourceClips.map((animation) => {
+      const cleanedTracks = animation.tracks.filter((track) => {
+        const parts = track.name.split(".");
+        const trackName = parts.slice(0, -1).join(".");
+        let boneExists = false;
+        vrm.scene.traverse((node) => {
+          if (node.name === trackName) boneExists = true;
+        });
+        return boneExists;
+      });
+      return new THREE.AnimationClip(animation.name, animation.duration, cleanedTracks);
+    });
+
+    const totalTracks = sourceClips.reduce((sum, anim) => sum + anim.tracks.length, 0);
+    const cleanedTracksCount = cleanedAnimations.reduce((sum, anim) => sum + anim.tracks.length, 0);
+    console.log(
+      `✓ 动画轨道清理完成：${totalTracks} 轨道 -> ${cleanedTracksCount} 轨道（过滤了 ${totalTracks - cleanedTracksCount} 个不兼容轨道）`,
+    );
+
+    setAnimationClips(cleanedAnimations);
   }, [modelLoaded, animationsLoaded]);
 
   // Set up local keyboard listeners (movement only)
@@ -641,8 +839,8 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
     }
 
     // 动画信息
-    console.log(`\n动画列表 (${animationsRef.current?.length || 0} 个):`);
-    animationsRef.current?.forEach((anim, index) => {
+    console.log(`\n动画列表 (${animationClips?.length || 0} 个):`);
+    (animationClips || []).forEach((anim, index) => {
       console.log(`  ${index + 1}: "${anim.name}"`);
     });
 
@@ -753,7 +951,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
 
     headMeshes.current = foundHeadMeshes;
     console.log(`總共找到 ${foundHeadMeshes.length} 個頭/頸/臉/眼相關網格`);
-  }, [modelLoaded]);
+  }, [modelLoaded, animationClips]);
 
   // Animation state machine: fade between animations when playerState changes
   useEffect(() => {
@@ -940,7 +1138,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
             y: 0,
             z: _dodgeDirection.current.z * PHYSICS_CONFIG.dodgeImpulse,
           },
-          true
+          true,
         );
       return;
     }
@@ -1044,7 +1242,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
           if (rigidRef.current)
             rigidRef.current.setLinvel(
               {x: velocity.current[0] * 0.1, y: velocity.current[1], z: velocity.current[2] * 0.1},
-              true
+              true,
             );
         }
         break;
@@ -1106,7 +1304,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
               y: 0,
               z: -antiTurnVel.z * PHYSICS_CONFIG.turningDrag * 0.016,
             },
-            true
+            true,
           );
         }
 
@@ -1119,7 +1317,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
                 y: 0,
                 z: moveDirection.current.z * forceMultiplier * 0.016,
               },
-              true
+              true,
             );
         }
       } else {
@@ -1132,7 +1330,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
                 y: velocity.current[1],
                 z: velocity.current[2] * PHYSICS_CONFIG.groundDamping,
               },
-              true
+              true,
             );
         } else {
           if (rigidRef.current) rigidRef.current.setLinvel({x: 0, y: velocity.current[1], z: 0}, true);
@@ -1148,7 +1346,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
               y: 0,
               z: moveDirection.current.z * PHYSICS_CONFIG.airControlForce * 0.016,
             },
-            true
+            true,
           );
       }
     }
@@ -1215,8 +1413,8 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
       Math.max(
         0,
         (horizSpeed - (PHYSICS_CONFIG.maxWalkSpeed || 4)) /
-          ((PHYSICS_CONFIG.maxRunSpeed || 12) - (PHYSICS_CONFIG.maxWalkSpeed || 4) + 1e-5)
-      )
+          ((PHYSICS_CONFIG.maxRunSpeed || 12) - (PHYSICS_CONFIG.maxWalkSpeed || 4) + 1e-5),
+      ),
     );
     const dynamicSnap = snapBase + (snapMax - snapBase) * speedT;
     const graceBase = PHYSICS_CONFIG.groundedGraceTime ?? 0.08;
@@ -1332,7 +1530,7 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
     groupRef.current.position.set(
       position.current[0],
       position.current[1] - (CAPSULE_HALF_HEIGHT + CAPSULE_RADIUS),
-      position.current[2]
+      position.current[2],
     );
 
     // 5. 更新椅子位置和动画
@@ -1350,14 +1548,14 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
       const startPosition = new THREE.Vector3(
         position.current[0],
         position.current[1] - 2, // 从更低的位置开始
-        position.current[2]
+        position.current[2],
       );
 
       // 结束位置：在角色屁股后方（应用了偏移量）
       const finalPosition = new THREE.Vector3(
         position.current[0] + chairOffset.x,
         position.current[1] - 2.8, // 坐下的高度
-        position.current[2] + chairOffset.z
+        position.current[2] + chairOffset.z,
       );
 
       // 4. 使用 lerp（线性插值）来计算当前帧的位置
@@ -1500,13 +1698,25 @@ const ManukaPlayer = forwardRef(({colliders = []}, ref) => {
 
       {/* Visible character model group */}
       <group ref={groupRef} castShadow receiveShadow>
-        <primitive
-          ref={modelRef}
-          object={modelSceneRef.current}
-          scale={MODEL_CONFIG.modelType === "vrm" ? [1.18, 1.18, 1.18] : [0.03, 0.03, 0.03]}
-          // Hide model when camera is too close (first-person view)
-          visible={!!groupRef.current && groupRef.current.position.distanceTo(camera.position) > 1.0}
-        />
+        {MODEL_CONFIG.modelType === "vrm" ? (
+          <group rotation={[0, modelYawOffset, 0]}>
+            <primitive
+              ref={modelRef}
+              object={modelSceneRef.current}
+              scale={[1.18, 1.18, 1.18]}
+              // Hide model when camera is too close (first-person view)
+              visible={!!groupRef.current && groupRef.current.position.distanceTo(camera.position) > 1.0}
+            />
+          </group>
+        ) : (
+          <primitive
+            ref={modelRef}
+            object={modelSceneRef.current}
+            scale={[0.03, 0.03, 0.03]}
+            // Hide model when camera is too close (first-person view)
+            visible={!!groupRef.current && groupRef.current.position.distanceTo(camera.position) > 1.0}
+          />
+        )}
       </group>
 
       {/* Facial rig controller (reusable) */}

@@ -44,7 +44,6 @@ const useGameStore = create((set, get) => ({
     }
   },
 
-
   // === 天氣系統 ===
   weather: {
     type: "clear", // 天氣類型
@@ -87,7 +86,7 @@ const useGameStore = create((set, get) => ({
     },
     ui: {
       showPerformanceMonitor: true, // 性能监视器显示开关
-      showCrosshair: false, // 十字准星显示开关
+      showCrosshair: true, // 十字准星显示开关
       crosshairStyle: "cross", // 十字准星样式: 'cross', 'circle', 'dot'
       crosshairSize: 20, // 十字准星大小
       crosshairColor: "#ffffff", // 十字准星颜色
@@ -141,15 +140,15 @@ const useGameStore = create((set, get) => ({
       dofBokehScale: 2.0,
       dofAutoFocus: false,
       dofFocusSpeed: 0.15,
-      dofFocusTarget: 'center', // 'center' | 'object'
+      dofFocusTarget: "center", // 'center' | 'object'
       // 自动对焦优化与模式
       dofAFIntervalMs: 200, // 节流间隔，降低每帧射线成本
-      dofAFMode: 'raycast', // 'raycast' | 'target'
+      dofAFMode: "raycast", // 'raycast' | 'target'
       dofFocusLayer: null, // 仅对该 layer 的对象进行对焦（如 2），null 为全部
       dofAFTargetName: null,
 
       // Outline 设置
-      outlineMode: 'standard', // 'standard' | 'sobel' | 'hybrid'
+      outlineMode: "standard", // 'standard' | 'sobel' | 'hybrid'
 
       // 色彩调整（默认只做一点点对比度/饱和度，避免“滤镜感”）
       brightness: -0.02,
@@ -175,7 +174,7 @@ const useGameStore = create((set, get) => ({
 
       // 视距/空气透视（阶段4C：200~500 视距范围的沉浸感）
       viewDistance: 350,
-      hazePreset: 'balanced', // 'performance' | 'balanced' | 'quality'
+      hazePreset: "balanced", // 'performance' | 'balanced' | 'quality'
 
       // 近/远段的空气透视控制（FogRenderer 会用这些值动态生成 fog）
       hazeNear: 20,
@@ -193,7 +192,7 @@ const useGameStore = create((set, get) => ({
       terrainFarRoughnessBoost: 0.35, // 远处额外粗糙度（减少高光噪点）
 
       enableFog: true,
-      fogType: 'exp2', // 'linear' | 'exp2'
+      fogType: "exp2", // 'linear' | 'exp2'
       fogNear: 10,
       fogFar: 180,
       fogColor: "#b8c7d6",
@@ -220,9 +219,8 @@ const useGameStore = create((set, get) => ({
   // === Action Methods ===
 
   // MMD Test control
-  startMMDTest: (config) => set(() => ({ mmdTest: { active: true, config } })),
-  stopMMDTest: () => set(() => ({ mmdTest: { active: false, config: null } })),
-
+  startMMDTest: (config) => set(() => ({mmdTest: {active: true, config}})),
+  stopMMDTest: () => set(() => ({mmdTest: {active: false, config: null}})),
 
   /**
    * @description 更新時間流逝 (高頻調用，不會觸發組件重新渲染)
@@ -300,7 +298,6 @@ const useGameStore = create((set, get) => ({
     set((state) => ({
       scene: {currentScene: scene},
     })),
-
 
   /**
    * @description 更新小地圖設置

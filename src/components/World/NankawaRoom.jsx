@@ -1,7 +1,8 @@
 import React, {useMemo} from "react";
 import {Canvas} from "@react-three/fiber";
-import {OrbitControls, Text, Environment} from "@react-three/drei";
+import {OrbitControls, Text, Environment, useTexture} from "@react-three/drei";
 import * as THREE from "three";
+import SocialPortals from "./SocialPortals";
 
 // ==========================================
 // 1. 基础配置
@@ -29,7 +30,13 @@ const SLIDING_DOOR_THICKNESS = 0.05; // 推拉门极薄化
 // ==========================================
 // 2. 墙体组件
 // ==========================================
-const SmartWall = ({start, end, door = null, glass = false}) => {
+const ensureUv2 = (geometry) => {
+  // Needed for aoMap. Safe no-op if already present.
+  if (!geometry?.attributes?.uv || geometry.attributes.uv2) return;
+  geometry.setAttribute("uv2", new THREE.BufferAttribute(geometry.attributes.uv.array, 2));
+};
+
+const SmartWall = ({start, end, door = null, glass = false, materials}) => {
   const dx = end[0] - start[0];
   const dy = end[1] - start[1];
   const length = Math.sqrt(dx * dx + dy * dy);
@@ -54,9 +61,19 @@ const SmartWall = ({start, end, door = null, glass = false}) => {
 
   if (!door) {
     return (
-      <mesh position={[midX, WALL_HEIGHT / 2, midY]} rotation={[0, -angle, 0]}>
+      <mesh
+        position={[midX, WALL_HEIGHT / 2, midY]}
+        rotation={[0, -angle, 0]}
+        onUpdate={(self) => {
+          if (self.geometry) ensureUv2(self.geometry);
+        }}
+      >
         <boxGeometry args={[length, WALL_HEIGHT, WALL_THICKNESS]} />
-        <meshStandardMaterial color={COLORS.wall} />
+        {materials?.wallMat ? (
+          <primitive object={materials.wallMat} attach="material" />
+        ) : (
+          <meshStandardMaterial color={COLORS.wall} />
+        )}
       </mesh>
     );
   }
@@ -78,27 +95,55 @@ const SmartWall = ({start, end, door = null, glass = false}) => {
   return (
     <group position={[start[0], 0, start[1]]} rotation={[0, -angle, 0]}>
       {part1Length > 0 && (
-        <mesh position={[part1Length / 2, WALL_HEIGHT / 2, 0]}>
+        <mesh
+          position={[part1Length / 2, WALL_HEIGHT / 2, 0]}
+          onUpdate={(self) => {
+            if (self.geometry) ensureUv2(self.geometry);
+          }}
+        >
           <boxGeometry args={[part1Length, WALL_HEIGHT, WALL_THICKNESS]} />
-          <meshStandardMaterial color={COLORS.wall} />
+          {materials?.wallMat ? (
+            <primitive object={materials.wallMat} attach="material" />
+          ) : (
+            <meshStandardMaterial color={COLORS.wall} />
+          )}
         </mesh>
       )}
       <group position={[doorOffset, DOOR_HEIGHT / 2, 0]}>
         {/* 门板 */}
         <mesh>
           <boxGeometry args={[doorWidth, DOOR_HEIGHT, currentDoorThickness]} />
-          <meshStandardMaterial color={doorColor} />
+          {/* Door is kept simple for now */}
+          <meshStandardMaterial color={doorColor} roughness={0.85} metalness={0.0} />
         </mesh>
         {/* 门上方补墙 (门梁) */}
-        <mesh position={[0, (WALL_HEIGHT - DOOR_HEIGHT) / 2 + DOOR_HEIGHT / 2, 0]}>
+        <mesh
+          position={[0, (WALL_HEIGHT - DOOR_HEIGHT) / 2 + DOOR_HEIGHT / 2, 0]}
+          onUpdate={(self) => {
+            if (self.geometry) ensureUv2(self.geometry);
+          }}
+        >
           <boxGeometry args={[doorWidth, WALL_HEIGHT - DOOR_HEIGHT, WALL_THICKNESS]} />
-          <meshStandardMaterial color={COLORS.wall} />
+          {materials?.wallMat ? (
+            <primitive object={materials.wallMat} attach="material" />
+          ) : (
+            <meshStandardMaterial color={COLORS.wall} />
+          )}
         </mesh>
       </group>
       {part2Length > 0 && (
-        <mesh position={[length - part2Length / 2, WALL_HEIGHT / 2, 0]}>
+        <mesh
+          position={[length - part2Length / 2, WALL_HEIGHT / 2, 0]}
+          onUpdate={(self) => {
+            if (self.geometry) ensureUv2(self.geometry);
+          }}
+        >
           <boxGeometry args={[part2Length, WALL_HEIGHT, WALL_THICKNESS]} />
-          <meshStandardMaterial color={COLORS.wall} />
+          {materials?.wallMat ? (
+            <primitive object={materials.wallMat} attach="material" />
+          ) : (
+            <meshStandardMaterial color={COLORS.wall} />
+          )}
         </mesh>
       )}
     </group>
@@ -131,7 +176,131 @@ const RoomLabel = ({position, text, subText}) => (
 // ==========================================
 // 4. 户型核心逻辑
 // ==========================================
-const HouseModel = () => {
+const HouseModel = ({playerRef} = {}) => {
+  // === PBR materials (lightweight, shared) ===
+  const wallColor = useTexture("/assets/textures/PBR/Wall/Planks021_1K-PNG_Color.png");
+  const wallNormal = useTexture("/assets/textures/PBR/Wall/Planks021_1K-PNG_NormalGL.png");
+  const wallRough = useTexture("/assets/textures/PBR/Wall/Planks021_1K-PNG_Roughness.png");
+  const wallAO = useTexture("/assets/textures/PBR/Wall/Planks021_1K-PNG_AmbientOcclusion.png");
+
+  const floorColor = useTexture("/assets/textures/PBR/Floor/Tiles081_1K-PNG_Color.png");
+  const floorNormal = useTexture("/assets/textures/PBR/Floor/Tiles081_1K-PNG_NormalGL.png");
+  const floorRough = useTexture("/assets/textures/PBR/Floor/Tiles081_1K-PNG_Roughness.png");
+
+  const bathroomTilesColor = useTexture("/assets/textures/PBR/Tiles/Tiles122_1K-PNG_Color.png");
+  const bathroomTilesNormal = useTexture("/assets/textures/PBR/Tiles/Tiles122_1K-PNG_NormalGL.png");
+  const bathroomTilesRough = useTexture("/assets/textures/PBR/Tiles/Tiles122_1K-PNG_Roughness.png");
+  const bathroomTilesAO = useTexture("/assets/textures/PBR/Tiles/Tiles122_1K-PNG_AmbientOcclusion.png");
+
+  const rugColor = useTexture("/assets/textures/PBR/Rug/Carpet003_1K-PNG_Color.png");
+  const rugNormal = useTexture("/assets/textures/PBR/Rug/Carpet003_1K-PNG_NormalGL.png");
+  const rugRough = useTexture("/assets/textures/PBR/Rug/Carpet003_1K-PNG_Roughness.png");
+  const rugAO = useTexture("/assets/textures/PBR/Rug/Carpet003_1K-PNG_AmbientOcclusion.png");
+
+  const metalColor = useTexture("/assets/textures/PBR/Metal/Metal009_1K-PNG_Color.png");
+  const metalNormal = useTexture("/assets/textures/PBR/Metal/Metal009_1K-PNG_NormalGL.png");
+  const metalRough = useTexture("/assets/textures/PBR/Metal/Metal009_1K-PNG_Roughness.png");
+  const metalMetalness = useTexture("/assets/textures/PBR/Metal/Metal009_1K-PNG_Metalness.png");
+
+  const materials = useMemo(() => {
+    const configure = (tex, {repeat = [1, 1], isColor = false} = {}) => {
+      if (!tex) return;
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(repeat[0], repeat[1]);
+      tex.anisotropy = 8;
+      if (isColor) tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true;
+    };
+
+    // Reasonable tiling defaults (can tweak later)
+    configure(wallColor, {repeat: [6, 2], isColor: true});
+    configure(wallNormal, {repeat: [6, 2]});
+    configure(wallRough, {repeat: [6, 2]});
+    configure(wallAO, {repeat: [6, 2]});
+
+    configure(floorColor, {repeat: [10, 8], isColor: true});
+    configure(floorNormal, {repeat: [10, 8]});
+    configure(floorRough, {repeat: [10, 8]});
+
+    configure(bathroomTilesColor, {repeat: [4, 4], isColor: true});
+    configure(bathroomTilesNormal, {repeat: [4, 4]});
+    configure(bathroomTilesRough, {repeat: [4, 4]});
+    configure(bathroomTilesAO, {repeat: [4, 4]});
+
+    configure(rugColor, {repeat: [2, 2], isColor: true});
+    configure(rugNormal, {repeat: [2, 2]});
+    configure(rugRough, {repeat: [2, 2]});
+    configure(rugAO, {repeat: [2, 2]});
+
+    configure(metalColor, {repeat: [2, 2], isColor: true});
+    configure(metalNormal, {repeat: [2, 2]});
+    configure(metalRough, {repeat: [2, 2]});
+    configure(metalMetalness, {repeat: [2, 2]});
+
+    const wallMat = new THREE.MeshStandardMaterial({
+      map: wallColor,
+      normalMap: wallNormal,
+      roughnessMap: wallRough,
+      aoMap: wallAO,
+      roughness: 1,
+    });
+
+    const floorMat = new THREE.MeshStandardMaterial({
+      map: floorColor,
+      normalMap: floorNormal,
+      roughnessMap: floorRough,
+      roughness: 1,
+    });
+
+    const bathroomTilesMat = new THREE.MeshStandardMaterial({
+      map: bathroomTilesColor,
+      normalMap: bathroomTilesNormal,
+      roughnessMap: bathroomTilesRough,
+      aoMap: bathroomTilesAO,
+      roughness: 1,
+    });
+
+    const rugMat = new THREE.MeshStandardMaterial({
+      map: rugColor,
+      normalMap: rugNormal,
+      roughnessMap: rugRough,
+      aoMap: rugAO,
+      roughness: 1,
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      map: metalColor,
+      normalMap: metalNormal,
+      roughnessMap: metalRough,
+      metalnessMap: metalMetalness,
+      roughness: 0.85,
+      metalness: 1,
+    });
+
+    return {wallMat, floorMat, bathroomTilesMat, rugMat, metalMat};
+  }, [
+    wallColor,
+    wallNormal,
+    wallRough,
+    wallAO,
+    floorColor,
+    floorNormal,
+    floorRough,
+    bathroomTilesColor,
+    bathroomTilesNormal,
+    bathroomTilesRough,
+    bathroomTilesAO,
+    rugColor,
+    rugNormal,
+    rugRough,
+    rugAO,
+    metalColor,
+    metalNormal,
+    metalRough,
+    metalMetalness,
+  ]);
+
   // === 坐标定义 ===
   const X0 = 0;
   const X_LIVING_R = 15;
@@ -202,33 +371,63 @@ const HouseModel = () => {
       {start: [X_UNSPEC_START, Z_HALL_BOT], end: [X_UNSPEC_START, Z_BOTTOM]},
       {start: [X_UNSPEC_START, Z_HALL_BOT], end: [X_RIGHT, Z_HALL_BOT], door: {type: "single", offset: 3, width: 1.2}},
     ],
-    []
+    [],
   );
 
   return (
     <group>
       {walls.map((wall, index) => (
-        <SmartWall key={index} {...wall} />
+        <SmartWall key={index} {...wall} materials={materials} />
       ))}
 
       {/* === 地板系统 === */}
 
       {/* 1. 主室内地板 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[X_RIGHT / 2 + 2, -0.01, Z_BOTTOM / 2]}>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[X_RIGHT / 2 + 2, -0.01, Z_BOTTOM / 2]}
+        onUpdate={(self) => {
+          if (self.geometry) ensureUv2(self.geometry);
+        }}
+      >
         <planeGeometry args={[X_RIGHT + 10, Z_BOTTOM + 5]} />
-        <meshStandardMaterial color={COLORS.floorIndoor} />
+        {materials?.floorMat ? (
+          <primitive object={materials.floorMat} attach="material" />
+        ) : (
+          <meshStandardMaterial color={COLORS.floorIndoor} />
+        )}
       </mesh>
 
       {/* 2. 客卫地板 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[X_LIVING_R / 2, 0.02, (Z_LIVING_SEP + Z_BATH_BOT) / 2]}>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[X_LIVING_R / 2, 0.02, (Z_LIVING_SEP + Z_BATH_BOT) / 2]}
+        onUpdate={(self) => {
+          if (self.geometry) ensureUv2(self.geometry);
+        }}
+      >
         <planeGeometry args={[X_LIVING_R, Z_BATH_BOT - Z_LIVING_SEP]} />
-        <meshStandardMaterial color={COLORS.floorPool} />
+        {materials?.bathroomTilesMat ? (
+          <primitive object={materials.bathroomTilesMat} attach="material" />
+        ) : (
+          <meshStandardMaterial color={COLORS.floorPool} />
+        )}
       </mesh>
 
       {/* 3. 主卫地板 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[X_BED_START + 3, 0.02, Z_BED_WALL - 1.75]}>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[X_BED_START + 3, 0.02, Z_BED_WALL - 1.75]}
+        onUpdate={(self) => {
+          if (self.geometry) ensureUv2(self.geometry);
+        }}
+      >
         <planeGeometry args={[6, 3.5]} />
-        <meshStandardMaterial color={COLORS.floorPool} />
+        {materials?.bathroomTilesMat ? (
+          <primitive object={materials.bathroomTilesMat} attach="material" />
+        ) : (
+          <meshStandardMaterial color={COLORS.floorPool} />
+        )}
       </mesh>
 
       {/* 4. 户外大草坪 */}
@@ -256,6 +455,73 @@ const HouseModel = () => {
       <Text position={[X_RIGHT + 8, 0.5, Z_BOTTOM - 5]} rotation={[-Math.PI / 2, 0, 0]} fontSize={1.5} color="white">
         种植园
       </Text>
+
+      {/* === 客厅展示区：Portal墙 + 沙发 + 地毯 + 灯光（背靠主卧西墙，面向客厅中心） === */}
+
+      {/* Rug: in living room, in front of master bedroom west wall */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[X_BED_START - 2.5, 0.01, Z_LIVING_SEP / 2]}
+        onUpdate={(self) => {
+          if (self.geometry) ensureUv2(self.geometry);
+        }}
+      >
+        <planeGeometry args={[5, 7]} />
+        {materials?.rugMat ? <primitive object={materials.rugMat} attach="material" /> : <meshStandardMaterial color="#999" />}
+      </mesh>
+
+      {/* Ceiling lights for living room showcase area */}
+      <group>
+        <pointLight
+          position={[X_BED_START - 2.5, 3.2, Z_LIVING_SEP / 2]}
+          intensity={35}
+          distance={18}
+          decay={2}
+          color={0xfff1dd}
+        />
+        <pointLight
+          position={[X_BED_START - 3.5, 3.0, Z_LIVING_SEP / 2 - 2]}
+          intensity={18}
+          distance={14}
+          decay={2}
+          color={0xe8f1ff}
+        />
+        <pointLight
+          position={[X_BED_START - 3.5, 3.0, Z_LIVING_SEP / 2 + 2]}
+          intensity={18}
+          distance={14}
+          decay={2}
+          color={0xe8f1ff}
+        />
+
+        {/* Small metal fixtures (purely visual) */}
+        <mesh position={[X_BED_START - 2.5, 3.45, Z_LIVING_SEP / 2]}>
+          <cylinderGeometry args={[0.18, 0.18, 0.08, 24]} />
+          {materials?.metalMat ? (
+            <primitive object={materials.metalMat} attach="material" />
+          ) : (
+            <meshStandardMaterial color="#666" metalness={1} roughness={0.6} />
+          )}
+        </mesh>
+      </group>
+
+      {/* Social portals: on master bedroom west wall (living room side), facing west into living room */}
+      <SocialPortals
+        playerRef={playerRef}
+        basePosition={[X_BED_START - 0.5, 1.5, Z_LIVING_SEP / 2]}
+        rotationY={-Math.PI / 2}
+        spacing={2.2}
+      />
+
+      {/* Metal pedestal under portals */}
+      <mesh position={[X_BED_START - 0.5, 0.15, Z_LIVING_SEP / 2]}>
+        <boxGeometry args={[0.8, 0.15, 7.0]} />
+        {materials?.metalMat ? (
+          <primitive object={materials.metalMat} attach="material" />
+        ) : (
+          <meshStandardMaterial color="#777" metalness={1} roughness={0.55} />
+        )}
+      </mesh>
 
       {/* === 标签 === */}
       <RoomLabel position={[X_LIVING_R / 2, 0, Z_LIVING_SEP / 2]} text="客厅" />

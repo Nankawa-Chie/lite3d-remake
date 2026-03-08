@@ -185,24 +185,24 @@ function DebugPanel({
           <div className="debug-section">
             <h4>🎮 Scene Selection</h4>
             <div className="scene-buttons">
-                <button
-                  className={`scene-btn ${currentScene === "game" ? "active" : ""}`}
-                  onClick={() => onSceneChange && onSceneChange("game")}
-                >
-                  🌍 探索世界
-                </button>
-                <button
-                  className={`scene-btn ${currentScene === "quaternion" ? "active" : ""}`}
-                  onClick={() => onSceneChange && onSceneChange("quaternion")}
-                >
-                  🧭 四元数可视化
-                </button>
-                <button
-                  className={`scene-btn ${currentScene === "maze" ? "active" : ""}`}
-                  onClick={() => onSceneChange && onSceneChange("maze")}
-                >
-                  👻 鬧鬼迷宮
-                </button>
+              <button
+                className={`scene-btn ${currentScene === "game" ? "active" : ""}`}
+                onClick={() => onSceneChange && onSceneChange("game")}
+              >
+                🌍 探索世界
+              </button>
+              <button
+                className={`scene-btn ${currentScene === "quaternion" ? "active" : ""}`}
+                onClick={() => onSceneChange && onSceneChange("quaternion")}
+              >
+                🧭 四元数可视化
+              </button>
+              <button
+                className={`scene-btn ${currentScene === "maze" ? "active" : ""}`}
+                onClick={() => onSceneChange && onSceneChange("maze")}
+              >
+                👻 鬧鬼迷宮
+              </button>
             </div>
           </div>
 
@@ -877,7 +877,7 @@ function DebugPanel({
               <input
                 type="checkbox"
                 checked={renderingSettings.enableToonishShading}
-                onChange={(e) => handleRenderingSettingChange('enableToonishShading', e.target.checked)}
+                onChange={(e) => handleRenderingSettingChange("enableToonishShading", e.target.checked)}
               />
             </div>
 
@@ -889,7 +889,7 @@ function DebugPanel({
                 max="8"
                 step="1"
                 value={renderingSettings.toonRampSteps ?? 4}
-                onChange={(e) => handleRenderingSettingChange('toonRampSteps', parseInt(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("toonRampSteps", parseInt(e.target.value))}
               />
               <span>{renderingSettings.toonRampSteps ?? 4}</span>
             </div>
@@ -902,7 +902,7 @@ function DebugPanel({
                 max="1"
                 step="0.01"
                 value={renderingSettings.toonRampSmoothness ?? 0.55}
-                onChange={(e) => handleRenderingSettingChange('toonRampSmoothness', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("toonRampSmoothness", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.toonRampSmoothness ?? 0.55).toFixed(2)}</span>
             </div>
@@ -915,7 +915,7 @@ function DebugPanel({
                 max="2"
                 step="0.01"
                 value={renderingSettings.toonRimStrength ?? 0.35}
-                onChange={(e) => handleRenderingSettingChange('toonRimStrength', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("toonRimStrength", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.toonRimStrength ?? 0.35).toFixed(2)}</span>
             </div>
@@ -928,7 +928,7 @@ function DebugPanel({
                 max="8"
                 step="0.05"
                 value={renderingSettings.toonRimPower ?? 2.5}
-                onChange={(e) => handleRenderingSettingChange('toonRimPower', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("toonRimPower", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.toonRimPower ?? 2.5).toFixed(2)}</span>
             </div>
@@ -937,8 +937,8 @@ function DebugPanel({
               <label>Rim Color:</label>
               <input
                 type="color"
-                value={renderingSettings.toonRimColor ?? '#dbe9ff'}
-                onChange={(e) => handleRenderingSettingChange('toonRimColor', e.target.value)}
+                value={renderingSettings.toonRimColor ?? "#dbe9ff"}
+                onChange={(e) => handleRenderingSettingChange("toonRimColor", e.target.value)}
               />
             </div>
 
@@ -950,11 +950,10 @@ function DebugPanel({
                 max="0.5"
                 step="0.01"
                 value={renderingSettings.toonShadowLift ?? 0.08}
-                onChange={(e) => handleRenderingSettingChange('toonShadowLift', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("toonShadowLift", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.toonShadowLift ?? 0.08).toFixed(2)}</span>
             </div>
-
 
             {/* 基础渲染设置 */}
             <div className="setting-row">
@@ -1014,7 +1013,7 @@ function DebugPanel({
                 max="500"
                 step="10"
                 value={renderingSettings.viewDistance ?? 350}
-                onChange={(e) => handleRenderingSettingChange('viewDistance', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("viewDistance", parseFloat(e.target.value))}
               />
               <span>{renderingSettings.viewDistance ?? 350}</span>
             </div>
@@ -1027,7 +1026,7 @@ function DebugPanel({
                 max="120"
                 step="5"
                 value={renderingSettings.hazeNear ?? 20}
-                onChange={(e) => handleRenderingSettingChange('hazeNear', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("hazeNear", parseFloat(e.target.value))}
               />
               <span>{renderingSettings.hazeNear ?? 20}</span>
             </div>
@@ -1039,10 +1038,10 @@ function DebugPanel({
                 min="200"
                 max="500"
                 step="10"
-                value={renderingSettings.hazeFar ?? (renderingSettings.viewDistance ?? 350)}
-                onChange={(e) => handleRenderingSettingChange('hazeFar', parseFloat(e.target.value))}
+                value={renderingSettings.hazeFar ?? renderingSettings.viewDistance ?? 350}
+                onChange={(e) => handleRenderingSettingChange("hazeFar", parseFloat(e.target.value))}
               />
-              <span>{renderingSettings.hazeFar ?? (renderingSettings.viewDistance ?? 350)}</span>
+              <span>{renderingSettings.hazeFar ?? renderingSettings.viewDistance ?? 350}</span>
             </div>
 
             <div className="setting-row">
@@ -1053,7 +1052,7 @@ function DebugPanel({
                 max="0.01"
                 step="0.0001"
                 value={renderingSettings.hazeDensityDay ?? 0.0012}
-                onChange={(e) => handleRenderingSettingChange('hazeDensityDay', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("hazeDensityDay", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.hazeDensityDay ?? 0.0012).toFixed(4)}</span>
             </div>
@@ -1066,7 +1065,7 @@ function DebugPanel({
                 max="0.02"
                 step="0.0002"
                 value={renderingSettings.hazeDensityNight ?? 0.0028}
-                onChange={(e) => handleRenderingSettingChange('hazeDensityNight', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("hazeDensityNight", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.hazeDensityNight ?? 0.0028).toFixed(4)}</span>
             </div>
@@ -1075,8 +1074,8 @@ function DebugPanel({
               <label>Haze Color (Day):</label>
               <input
                 type="color"
-                value={renderingSettings.hazeColorDay ?? '#b8c7d6'}
-                onChange={(e) => handleRenderingSettingChange('hazeColorDay', e.target.value)}
+                value={renderingSettings.hazeColorDay ?? "#b8c7d6"}
+                onChange={(e) => handleRenderingSettingChange("hazeColorDay", e.target.value)}
               />
             </div>
 
@@ -1084,8 +1083,8 @@ function DebugPanel({
               <label>Haze Color (Night):</label>
               <input
                 type="color"
-                value={renderingSettings.hazeColorNight ?? '#0b1320'}
-                onChange={(e) => handleRenderingSettingChange('hazeColorNight', e.target.value)}
+                value={renderingSettings.hazeColorNight ?? "#0b1320"}
+                onChange={(e) => handleRenderingSettingChange("hazeColorNight", e.target.value)}
               />
             </div>
 
@@ -1098,7 +1097,7 @@ function DebugPanel({
                 max="400"
                 step="10"
                 value={renderingSettings.terrainDistanceFadeStart ?? 120}
-                onChange={(e) => handleRenderingSettingChange('terrainDistanceFadeStart', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("terrainDistanceFadeStart", parseFloat(e.target.value))}
               />
               <span>{renderingSettings.terrainDistanceFadeStart ?? 120}</span>
             </div>
@@ -1111,7 +1110,7 @@ function DebugPanel({
                 max="500"
                 step="10"
                 value={renderingSettings.terrainDistanceFadeEnd ?? 350}
-                onChange={(e) => handleRenderingSettingChange('terrainDistanceFadeEnd', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("terrainDistanceFadeEnd", parseFloat(e.target.value))}
               />
               <span>{renderingSettings.terrainDistanceFadeEnd ?? 350}</span>
             </div>
@@ -1124,7 +1123,7 @@ function DebugPanel({
                 max="1"
                 step="0.01"
                 value={renderingSettings.terrainFarTexScale ?? 0.35}
-                onChange={(e) => handleRenderingSettingChange('terrainFarTexScale', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("terrainFarTexScale", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.terrainFarTexScale ?? 0.35).toFixed(2)}</span>
             </div>
@@ -1137,7 +1136,7 @@ function DebugPanel({
                 max="1"
                 step="0.01"
                 value={renderingSettings.terrainFarNormalScale ?? 0.35}
-                onChange={(e) => handleRenderingSettingChange('terrainFarNormalScale', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("terrainFarNormalScale", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.terrainFarNormalScale ?? 0.35).toFixed(2)}</span>
             </div>
@@ -1150,7 +1149,7 @@ function DebugPanel({
                 max="1"
                 step="0.01"
                 value={renderingSettings.terrainFarRoughnessBoost ?? 0.35}
-                onChange={(e) => handleRenderingSettingChange('terrainFarRoughnessBoost', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("terrainFarRoughnessBoost", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.terrainFarRoughnessBoost ?? 0.35).toFixed(2)}</span>
             </div>
@@ -1164,7 +1163,7 @@ function DebugPanel({
                 max="2.0"
                 step="0.05"
                 value={renderingSettings.environmentIntensity ?? 0.35}
-                onChange={(e) => handleRenderingSettingChange('environmentIntensity', parseFloat(e.target.value))}
+                onChange={(e) => handleRenderingSettingChange("environmentIntensity", parseFloat(e.target.value))}
               />
               <span>{(renderingSettings.environmentIntensity ?? 0.35).toFixed(2)}</span>
             </div>
@@ -1223,8 +1222,8 @@ function DebugPanel({
                 <div className="setting-row">
                   <label>FXAA:</label>
                   <select
-                    value={renderingSettings.enableFXAA || 'auto'}
-                    onChange={(e) => handleRenderingSettingChange('enableFXAA', e.target.value)}
+                    value={renderingSettings.enableFXAA || "auto"}
+                    onChange={(e) => handleRenderingSettingChange("enableFXAA", e.target.value)}
                   >
                     <option value="off">Off</option>
                     <option value="auto">Auto</option>
@@ -1243,7 +1242,7 @@ function DebugPanel({
                         max="1"
                         step="0.01"
                         value={renderingSettings.vignetteOffset ?? 0.2}
-                        onChange={(e) => handleRenderingSettingChange('vignetteOffset', parseFloat(e.target.value))}
+                        onChange={(e) => handleRenderingSettingChange("vignetteOffset", parseFloat(e.target.value))}
                       />
                       <span>{(renderingSettings.vignetteOffset ?? 0.2).toFixed(2)}</span>
                     </div>
@@ -1255,7 +1254,7 @@ function DebugPanel({
                         max="1"
                         step="0.01"
                         value={renderingSettings.vignetteDarkness ?? 0.35}
-                        onChange={(e) => handleRenderingSettingChange('vignetteDarkness', parseFloat(e.target.value))}
+                        onChange={(e) => handleRenderingSettingChange("vignetteDarkness", parseFloat(e.target.value))}
                       />
                       <span>{(renderingSettings.vignetteDarkness ?? 0.35).toFixed(2)}</span>
                     </div>
@@ -1266,8 +1265,8 @@ function DebugPanel({
                 <div className="setting-row">
                   <label>Bloom Mode:</label>
                   <select
-                    value={renderingSettings.bloomMode || 'global'}
-                    onChange={(e) => handleRenderingSettingChange('bloomMode', e.target.value)}
+                    value={renderingSettings.bloomMode || "global"}
+                    onChange={(e) => handleRenderingSettingChange("bloomMode", e.target.value)}
                   >
                     <option value="global">Global</option>
                     <option value="layer">Layer (Selective)</option>
@@ -1374,11 +1373,19 @@ function DebugPanel({
                     <h5>SSAO Settings</h5>
                     <div className="setting-row">
                       <label>Half Resolution:</label>
-                      <input type="checkbox" checked={!!renderingSettings.ssaoHalfRes} onChange={(e)=>handleRenderingSettingChange('ssaoHalfRes', e.target.checked)} />
+                      <input
+                        type="checkbox"
+                        checked={!!renderingSettings.ssaoHalfRes}
+                        onChange={(e) => handleRenderingSettingChange("ssaoHalfRes", e.target.checked)}
+                      />
                     </div>
                     <div className="setting-row">
                       <label>Bilateral Filter:</label>
-                      <input type="checkbox" checked={!!renderingSettings.ssaoBilateral} onChange={(e)=>handleRenderingSettingChange('ssaoBilateral', e.target.checked)} />
+                      <input
+                        type="checkbox"
+                        checked={!!renderingSettings.ssaoBilateral}
+                        onChange={(e) => handleRenderingSettingChange("ssaoBilateral", e.target.checked)}
+                      />
                     </div>
                     <div className="setting-row">
                       <label>Intensity:</label>
@@ -1416,7 +1423,7 @@ function DebugPanel({
                       <input
                         type="checkbox"
                         checked={!!renderingSettings.dofAutoFocus}
-                        onChange={(e)=>handleRenderingSettingChange('dofAutoFocus', e.target.checked)}
+                        onChange={(e) => handleRenderingSettingChange("dofAutoFocus", e.target.checked)}
                       />
                     </div>
                     {!renderingSettings.dofAutoFocus && (
@@ -1435,58 +1442,63 @@ function DebugPanel({
                     )}
                     {renderingSettings.dofAutoFocus && (
                       <div className="dof-af-settings">
-                      <div className="setting-row">
-                        <label>AF Mode:</label>
-                        <select
-                          value={renderingSettings.dofAFMode || 'raycast'}
-                          onChange={(e)=>handleRenderingSettingChange('dofAFMode', e.target.value)}
-                        >
-                          <option value="raycast">Raycast</option>
-                          <option value="target">Target</option>
-                        </select>
-                      </div>
-                      <div className="setting-row">
-                        <label>AF Interval (ms):</label>
-                        <input
-                          type="number"
-                          min="50"
-                          max="1000"
-                          step="50"
-                          value={renderingSettings.dofAFIntervalMs || 200}
-                          onChange={(e)=>handleRenderingSettingChange('dofAFIntervalMs', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="setting-row">
-                        <label>AF Focus Layer:</label>
-                        <input
-                          type="number"
-                          placeholder="e.g. 2"
-                          value={renderingSettings.dofFocusLayer ?? ''}
-                          onChange={(e)=>handleRenderingSettingChange('dofFocusLayer', e.target.value === '' ? null : parseInt(e.target.value))}
-                        />
-                      </div>
-                      {renderingSettings.dofAFMode === 'target' && (
                         <div className="setting-row">
-                          <label>AF Target Name:</label>
+                          <label>AF Mode:</label>
+                          <select
+                            value={renderingSettings.dofAFMode || "raycast"}
+                            onChange={(e) => handleRenderingSettingChange("dofAFMode", e.target.value)}
+                          >
+                            <option value="raycast">Raycast</option>
+                            <option value="target">Target</option>
+                          </select>
+                        </div>
+                        <div className="setting-row">
+                          <label>AF Interval (ms):</label>
                           <input
-                            type="text"
-                            value={renderingSettings.dofAFTargetName || ''}
-                            onChange={(e)=>handleRenderingSettingChange('dofAFTargetName', e.target.value || null)}
+                            type="number"
+                            min="50"
+                            max="1000"
+                            step="50"
+                            value={renderingSettings.dofAFIntervalMs || 200}
+                            onChange={(e) => handleRenderingSettingChange("dofAFIntervalMs", parseInt(e.target.value))}
                           />
                         </div>
-                      )}
-                      <div className="setting-row">
-                        <label>AF Speed:</label>
-                        <input
-                          type="range"
-                          min="0.01"
-                          max="1"
-                          step="0.01"
-                          value={renderingSettings.dofFocusSpeed || 0.15}
-                          onChange={(e) => handleRenderingSettingChange("dofFocusSpeed", parseFloat(e.target.value))}
-                        />
-                        <span>{(renderingSettings.dofFocusSpeed || 0.15).toFixed(2)}</span>
-                      </div>
+                        <div className="setting-row">
+                          <label>AF Focus Layer:</label>
+                          <input
+                            type="number"
+                            placeholder="e.g. 2"
+                            value={renderingSettings.dofFocusLayer ?? ""}
+                            onChange={(e) =>
+                              handleRenderingSettingChange(
+                                "dofFocusLayer",
+                                e.target.value === "" ? null : parseInt(e.target.value),
+                              )
+                            }
+                          />
+                        </div>
+                        {renderingSettings.dofAFMode === "target" && (
+                          <div className="setting-row">
+                            <label>AF Target Name:</label>
+                            <input
+                              type="text"
+                              value={renderingSettings.dofAFTargetName || ""}
+                              onChange={(e) => handleRenderingSettingChange("dofAFTargetName", e.target.value || null)}
+                            />
+                          </div>
+                        )}
+                        <div className="setting-row">
+                          <label>AF Speed:</label>
+                          <input
+                            type="range"
+                            min="0.01"
+                            max="1"
+                            step="0.01"
+                            value={renderingSettings.dofFocusSpeed || 0.15}
+                            onChange={(e) => handleRenderingSettingChange("dofFocusSpeed", parseFloat(e.target.value))}
+                          />
+                          <span>{(renderingSettings.dofFocusSpeed || 0.15).toFixed(2)}</span>
+                        </div>
                       </div>
                     )}
                     <div className="setting-row">
@@ -1559,8 +1571,8 @@ function DebugPanel({
                     <div className="setting-row">
                       <label>Fog Type:</label>
                       <select
-                        value={renderingSettings.fogType || 'linear'}
-                        onChange={(e) => handleRenderingSettingChange('fogType', e.target.value)}
+                        value={renderingSettings.fogType || "linear"}
+                        onChange={(e) => handleRenderingSettingChange("fogType", e.target.value)}
                       >
                         <option value="linear">Linear</option>
                         <option value="exp2">Exp2</option>
@@ -1568,7 +1580,7 @@ function DebugPanel({
                     </div>
 
                     {/* Linear Fog */}
-                    {(!renderingSettings.fogType || renderingSettings.fogType === 'linear') && (
+                    {(!renderingSettings.fogType || renderingSettings.fogType === "linear") && (
                       <>
                         <div className="setting-row">
                           <label>Fog Near:</label>
@@ -1606,7 +1618,7 @@ function DebugPanel({
                     )}
 
                     {/* Exp2 Fog */}
-                    {(renderingSettings.fogType === 'exp2') && (
+                    {renderingSettings.fogType === "exp2" && (
                       <>
                         <div className="setting-row">
                           <label>Fog Density:</label>
@@ -1616,7 +1628,7 @@ function DebugPanel({
                             max="0.02"
                             step="0.0005"
                             value={renderingSettings.fogDensity ?? 0.0015}
-                            onChange={(e) => handleRenderingSettingChange('fogDensity', parseFloat(e.target.value))}
+                            onChange={(e) => handleRenderingSettingChange("fogDensity", parseFloat(e.target.value))}
                           />
                           <span>{(renderingSettings.fogDensity ?? 0.0015).toFixed(4)}</span>
                         </div>
@@ -1859,7 +1871,7 @@ function MMDTestPanel() {
   const stopMMDTest = useGameStore((s) => s.stopMMDTest);
 
   // Local simple defaults
-  const [modelUrl, setModelUrl] = useState("/mmd/Vergil/vergil.pmx");
+  const [modelUrl, setModelUrl] = useState("/mmd/Nankawa/NankawaChie.pmx");
   const [motion1, setMotion1] = useState("/mmd/Lamb/lamb足ボーン長い人用.vmd");
   const [motion2, setMotion2] = useState("");
   const [cameraUrl, setCameraUrl] = useState("/mmd/Lamb/lambカメラ2.vmd");
@@ -1882,27 +1894,33 @@ function MMDTestPanel() {
   // persist and restore remap inputs
   useEffect(() => {
     try {
-      const a = localStorage.getItem('mmd_morphRemap');
+      const a = localStorage.getItem("mmd_morphRemap");
       if (a) setMorphRemap(a);
-      const b = localStorage.getItem('mmd_morphRemapIndex');
+      const b = localStorage.getItem("mmd_morphRemapIndex");
       if (b) setMorphRemapIndex(b);
     } catch {}
   }, []);
   const onChangeMorphRemap = (v) => {
     setMorphRemap(v);
-    try { localStorage.setItem('mmd_morphRemap', v); } catch {}
+    try {
+      localStorage.setItem("mmd_morphRemap", v);
+    } catch {}
   };
   const onChangeMorphRemapIndex = (v) => {
     setMorphRemapIndex(v);
-    try { localStorage.setItem('mmd_morphRemapIndex', v); } catch {}
+    try {
+      localStorage.setItem("mmd_morphRemapIndex", v);
+    } catch {}
   };
 
   // accept JSON or simple lines: key=value per line
   const parseMapping = (txt) => {
     if (!txt || !txt.trim()) return null;
-    try { return JSON.parse(txt); } catch {}
+    try {
+      return JSON.parse(txt);
+    } catch {}
     const map = {};
-    txt.split(/\r?\n/).forEach(line => {
+    txt.split(/\r?\n/).forEach((line) => {
       const s = line.trim();
       if (!s) return;
       const m = s.match(/^(.*?)=(.*)$/);
@@ -1929,7 +1947,7 @@ function MMDTestPanel() {
       timeScale: Number(timeScale) || 1,
       loop: true,
       cameraPosScale: Number(camScale) || 1,
-      cameraOffset: [Number(camOffX)||0, Number(camOffY)||0, Number(camOffZ)||0],
+      cameraOffset: [Number(camOffX) || 0, Number(camOffY) || 0, Number(camOffZ) || 0],
       cameraMinHeight: Number(camMinY) || 0,
       linkCameraScale: !!linkCamScale,
       linkCameraPosition: !!linkCamPos,
@@ -1994,28 +2012,48 @@ function MMDTestPanel() {
       </div>
       <div className="setting-row">
         <label>Camera Pos Scale:</label>
-        <input type="number" step="0.1" value={camScale} onChange={(e) => setCamScale(e.target.value)} disabled={linkCamScale} />
+        <input
+          type="number"
+          step="0.1"
+          value={camScale}
+          onChange={(e) => setCamScale(e.target.value)}
+          disabled={linkCamScale}
+        />
       </div>
       <div className="setting-row">
         <label>Camera Offset:</label>
-        <input type="number" step="0.1" value={camOffX} onChange={(e) => setCamOffX(e.target.value)} style={{width:70}} />
-        <input type="number" step="0.1" value={camOffY} onChange={(e) => setCamOffY(e.target.value)} style={{width:70}} />
-        <input type="number" step="0.1" value={camOffZ} onChange={(e) => setCamOffZ(e.target.value)} style={{width:70}} />
+        <input type="number" step="0.1" value={camOffX} onChange={(e) => setCamOffX(e.target.value)} style={{width: 70}} />
+        <input type="number" step="0.1" value={camOffY} onChange={(e) => setCamOffY(e.target.value)} style={{width: 70}} />
+        <input type="number" step="0.1" value={camOffZ} onChange={(e) => setCamOffZ(e.target.value)} style={{width: 70}} />
       </div>
       <div className="setting-row">
         <label>Camera Min Y:</label>
         <input type="number" step="0.1" value={camMinY} onChange={(e) => setCamMinY(e.target.value)} />
       </div>
 
-      <div className="setting-row" style={{flexDirection:'column', alignItems:'flex-start'}}>
+      <div className="setting-row" style={{flexDirection: "column", alignItems: "flex-start"}}>
         <label>Morph Remap (name→name) JSON:</label>
-        <textarea rows={3} style={{width:'100%'}} placeholder='{"あ":"A","い":"I"}' value={morphRemap} onChange={(e)=>setMorphRemap(e.target.value)} />
-        <div style={{fontSize:12, opacity:0.8}}>当 VMD 表情名与模型 morph 名不一致时使用。留空表示不做重映射。</div>
+        <textarea
+          rows={3}
+          style={{width: "100%"}}
+          placeholder='{"あ":"A","い":"I"}'
+          value={morphRemap}
+          onChange={(e) => setMorphRemap(e.target.value)}
+        />
+        <div style={{fontSize: 12, opacity: 0.8}}>当 VMD 表情名与模型 morph 名不一致时使用。留空表示不做重映射。</div>
       </div>
-      <div className="setting-row" style={{flexDirection:'column', alignItems:'flex-start'}}>
+      <div className="setting-row" style={{flexDirection: "column", alignItems: "flex-start"}}>
         <label>Morph Remap (index→name) JSON:</label>
-        <textarea rows={3} style={{width:'100%'}} placeholder='{"0":"まばたき","24":"ウィンク"}' value={morphRemapIndex} onChange={(e)=>setMorphRemapIndex(e.target.value)} />
-        <div style={{fontSize:12, opacity:0.8}}>当 VMD 轨道是以索引形式（如 .morphTargetInfluences[24]）出现时使用。键是源索引，值是目标模型的 morph 名。</div>
+        <textarea
+          rows={3}
+          style={{width: "100%"}}
+          placeholder='{"0":"まばたき","24":"ウィンク"}'
+          value={morphRemapIndex}
+          onChange={(e) => setMorphRemapIndex(e.target.value)}
+        />
+        <div style={{fontSize: 12, opacity: 0.8}}>
+          当 VMD 轨道是以索引形式（如 .morphTargetInfluences[24]）出现时使用。键是源索引，值是目标模型的 morph 名。
+        </div>
       </div>
 
       <div className="quick-actions">
